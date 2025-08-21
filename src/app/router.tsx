@@ -1,10 +1,12 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+// src/app/router.tsx
+import { createBrowserRouter } from 'react-router-dom';
 import App from './App';
 import { ProtectedRoute } from '../features/auth/components/ProtectedRoute';
+import { LoginPage, RegisterPage } from '@/features/auth/pages';
+import { HomePage } from '@/pages';
 
 // Temporary placeholder components
 const Dashboard = () => <div>Dashboard (Coming Soon)</div>;
-const Login = () => <div>Login Page</div>;
 
 export const router = createBrowserRouter([
     {
@@ -13,7 +15,7 @@ export const router = createBrowserRouter([
         children: [
             {
                 index: true,
-                element: <Login />
+                element: <HomePage />
             },
             {
                 path: 'dashboard',
@@ -22,9 +24,15 @@ export const router = createBrowserRouter([
                         <Dashboard />
                     </ProtectedRoute>
                 )
+            },
+            {
+                path: 'auth/login',
+                element: <LoginPage />
+            },
+            {
+                path: 'auth/register',
+                element: <RegisterPage />
             }
         ]
     }
 ]);
-
-export const AppRouter = () => <RouterProvider router={router} />;
