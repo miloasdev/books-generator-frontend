@@ -1,12 +1,10 @@
 // src/app/router.tsx
 import { createBrowserRouter } from 'react-router-dom';
 import App from './App';
-import { ProtectedRoute } from '../features/auth/components/ProtectedRoute';
+import { ProtectedRoute } from '@/features/auth/components/ProtectedRoute';
 import { LoginPage, RegisterPage, ResetPasswordPage } from '@/features/auth/pages';
 import { HomePage } from '@/pages';
-
-// Temporary placeholder components
-const Dashboard = () => <div>Dashboard (Coming Soon)</div>;
+import {DashboardPage} from "@/features/dashboard/pages/DashboardPages.tsx";
 
 export const router = createBrowserRouter([
     {
@@ -21,7 +19,7 @@ export const router = createBrowserRouter([
                 path: 'dashboard',
                 element: (
                     <ProtectedRoute>
-                        <Dashboard />
+                        <DashboardPage />
                     </ProtectedRoute>
                 )
             },
