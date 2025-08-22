@@ -7,11 +7,11 @@ import { UsageStats } from '../components/UsageStats';
 
 export const DashboardPage = () => {
     return (
-        <div className="space-y-8">
+        <div className="space-y-6">
             <div>
                 <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
                 <p className="text-muted-foreground">
-                    Manage your AI-generated books and track your projects.
+                    An overview of your projects and usage statistics.
                 </p>
             </div>
 

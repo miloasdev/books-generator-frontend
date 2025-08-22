@@ -36,7 +36,6 @@ export const GeneratorPage = () => {
             navigate('/processing/');
         } else {
             console.error("Validation Errors:", result.error.flatten().fieldErrors);
-            // Manually set form errors from Zod's flattened error object
             Object.entries(result.error.flatten().fieldErrors).forEach(([name, messages]) => {
                 form.setError(name as keyof BookGeneratorFormValues, {
                     type: 'manual',
@@ -52,8 +51,8 @@ export const GeneratorPage = () => {
     }
 
     return (
-        <div className="space-y-8">
-            <div className="text-center">
+        <div className="space-y-6">
+            <div>
                 <h1 className="text-3xl font-bold tracking-tight">Generate Your Books</h1>
                 <p className="text-muted-foreground">Configure your content source and AI settings.</p>
             </div>
@@ -61,15 +60,12 @@ export const GeneratorPage = () => {
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)}>
                     <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
-                        {/* Left Column: Sheet Connector + Main Action Button */}
                         <div className="lg:col-span-3 flex flex-col gap-8">
                             <SheetConnector control={form.control} />
                             <Button type="submit" size="lg" className="w-full lg:w-auto lg:self-end">
                                 Generate Books
                             </Button>
                         </div>
-
-                        {/* Right Column: AI Configuration */}
                         <div className="lg:col-span-2">
                             <GenerationConfig control={form.control} />
                         </div>
