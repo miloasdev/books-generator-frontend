@@ -13,7 +13,8 @@ import { Input } from '@/shared/components/ui/input';
 import { useAuthStore } from '@/shared/stores/auth';
 import { useToast } from '@/shared/hooks/use-toast';
 import { loginSchema, type LoginFormValues } from '@/features/auth/lib/schemas';
-import { mockLoginSuccess, mockLoginError } from '@/mocks/auth';
+import { authService } from '../services/authService';
+import {getErrorMessage} from "@/shared/lib";
 
 export const LoginPage = () => {
     const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -29,30 +30,26 @@ export const LoginPage = () => {
         },
     });
 
-    // Simulate an API call
     const onSubmit = async (values: LoginFormValues) => {
         setIsSubmitting(true);
-        console.log('Form values:', values);
-
-        // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Simulate a failed login for a specific user
-        if (values.email === 'fail@example.com') {
+        try {
+            const data = await authService.login(values);
+            toast({
+                title: 'Login Successful',
+                description: `Welcome back!`,
+            });
+            // Create a placeholder user object. You can later decode the JWT to get real user info.
+            const user = { email: values.email, name: 'User' };
+            login(user, data.access_token);
+            navigate('/dashboard');
+        } catch (error) {
             toast({
                 variant: 'destructive',
                 title: 'Login Failed',
-                description: mockLoginError.error,
+                description: getErrorMessage(error), // Use the refactored function
             });
+        } finally {
             setIsSubmitting(false);
-        } else {
-            // Simulate a successful login
-            toast({
-                title: 'Login Successful',
-                description: `Welcome back, ${mockLoginSuccess.user.name}!`,
-            });
-            login(mockLoginSuccess.user, mockLoginSuccess.token);
-            navigate('/dashboard');
         }
     };
 

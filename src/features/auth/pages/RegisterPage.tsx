@@ -10,14 +10,13 @@ import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form';
 import { Input } from '@/shared/components/ui/input';
-import { useAuthStore } from '@/shared/stores/auth';
 import { useToast } from '@/shared/hooks/use-toast';
 import { registerSchema, type RegisterFormValues } from '../lib/schemas';
-import { mockRegisterSuccess, mockRegisterError } from '@/mocks/auth';
+import { authService } from '../services/authService';
+import {getErrorMessage} from "@/shared/lib"; // Import the real service
 
 export const RegisterPage = () => {
     const [isSubmitting, setIsSubmitting] = React.useState(false);
-    const { login } = useAuthStore();
     const navigate = useNavigate();
     const { toast } = useToast();
 
@@ -31,24 +30,21 @@ export const RegisterPage = () => {
 
     const onSubmit = async (values: RegisterFormValues) => {
         setIsSubmitting(true);
-        console.log('Form values:', values);
-
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        if (values.email === 'taken@example.com') {
+        try {
+            await authService.register(values);
+            toast({
+                title: 'Registration Successful',
+                description: 'Please log in to continue.',
+            });
+            navigate('/auth/login');
+        } catch (error) {
             toast({
                 variant: 'destructive',
                 title: 'Registration Failed',
-                description: mockRegisterError.error,
+                description: getErrorMessage(error),
             });
+        } finally {
             setIsSubmitting(false);
-        } else {
-            toast({
-                title: 'Registration Successful',
-                description: 'Welcome to Books AI!',
-            });
-            login(mockRegisterSuccess.user, mockRegisterSuccess.token);
-            navigate('/dashboard');
         }
     };
 
