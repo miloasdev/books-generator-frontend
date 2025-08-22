@@ -8,6 +8,7 @@ import { DashboardPage } from '@/features/dashboard/pages/DashboardPage';
 import { GeneratorPage } from '@/features/generator/pages/GeneratorPage';
 import {ProcessingPage} from "@/features/processing/pages/ProcessingPage.tsx";
 import {ResultsPage} from "@/features/results/pages/ResultsPage.tsx";
+import {SettingsPage} from "@/features/settings/pages/SettingsPage.tsx";
 
 export const router = createBrowserRouter([
     {
@@ -47,6 +48,14 @@ export const router = createBrowserRouter([
                 element: (
                     <ProtectedRoute>
                         <ResultsPage />
+                    </ProtectedRoute>
+                )
+            },
+            {
+                path: 'settings',
+                element: (
+                    <ProtectedRoute>
+                        <SettingsPage />
                     </ProtectedRoute>
                 )
             },
