@@ -1,10 +1,11 @@
 // src/app/router.tsx
 import { createBrowserRouter } from 'react-router-dom';
 import App from './App';
-import { ProtectedRoute } from '@/features/auth/components/ProtectedRoute';
+import { ProtectedRoute } from '../features/auth/components/ProtectedRoute';
 import { LoginPage, RegisterPage, ResetPasswordPage } from '@/features/auth/pages';
 import { HomePage } from '@/pages';
-import {DashboardPage} from "@/features/dashboard/pages/DashboardPages.tsx";
+import { DashboardPage } from '@/features/dashboard/pages/DashboardPage';
+import { GeneratorPage } from '@/features/generator/pages/GeneratorPage'; // 1. Import the new page
 
 export const router = createBrowserRouter([
     {
@@ -20,6 +21,15 @@ export const router = createBrowserRouter([
                 element: (
                     <ProtectedRoute>
                         <DashboardPage />
+                    </ProtectedRoute>
+                )
+            },
+            // 2. Add the new generator route
+            {
+                path: 'generator',
+                element: (
+                    <ProtectedRoute>
+                        <GeneratorPage />
                     </ProtectedRoute>
                 )
             },
