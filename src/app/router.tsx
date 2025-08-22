@@ -5,7 +5,8 @@ import { ProtectedRoute } from '../features/auth/components/ProtectedRoute';
 import { LoginPage, RegisterPage, ResetPasswordPage } from '@/features/auth/pages';
 import { HomePage } from '@/pages';
 import { DashboardPage } from '@/features/dashboard/pages/DashboardPage';
-import { GeneratorPage } from '@/features/generator/pages/GeneratorPage'; // 1. Import the new page
+import { GeneratorPage } from '@/features/generator/pages/GeneratorPage';
+import {ProcessingPage} from "@/features/processing/pages/ProcessingPage.tsx";
 
 export const router = createBrowserRouter([
     {
@@ -24,12 +25,19 @@ export const router = createBrowserRouter([
                     </ProtectedRoute>
                 )
             },
-            // 2. Add the new generator route
             {
                 path: 'generator',
                 element: (
                     <ProtectedRoute>
                         <GeneratorPage />
+                    </ProtectedRoute>
+                )
+            },
+            {
+                path: 'processing',
+                element: (
+                    <ProtectedRoute>
+                        <ProcessingPage />
                     </ProtectedRoute>
                 )
             },

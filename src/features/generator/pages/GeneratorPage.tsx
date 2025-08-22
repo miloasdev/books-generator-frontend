@@ -7,9 +7,10 @@ import { Form } from '@/shared/components/ui/form';
 import { SheetConnector } from '../components/SheetConnector';
 import { GenerationConfig } from '../components/GenerationConfig';
 import { bookGeneratorInputSchema, bookGeneratorSchema, type BookGeneratorFormValues } from '../lib/schemas';
+import {useNavigate} from "react-router-dom";
 
 export const GeneratorPage = () => {
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
     const { toast } = useToast();
 
     const form = useForm<BookGeneratorFormValues>({
@@ -32,7 +33,7 @@ export const GeneratorPage = () => {
                 title: "Job Submitted!",
                 description: "Your books are now being processed.",
             });
-            // navigate('/processing/some-job-id');
+            navigate('/processing/');
         } else {
             console.error("Validation Errors:", result.error.flatten().fieldErrors);
             // Manually set form errors from Zod's flattened error object
