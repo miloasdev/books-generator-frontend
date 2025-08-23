@@ -19,9 +19,9 @@ const UsageItem = ({ title, value, max, progress }: { title: string, value: stri
 
 export const UsageStats = () => {
     return (
-        <Card>
+        <Card className="bg-card border border-border">
             <CardHeader>
-                <CardTitle>Usage This Month</CardTitle>
+                <CardTitle className="font-serif">Usage This Month</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
                 <UsageItem title="Books Generated" value="12" max="50" progress={24} />

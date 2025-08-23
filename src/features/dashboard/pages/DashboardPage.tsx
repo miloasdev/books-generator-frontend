@@ -22,25 +22,25 @@ export const DashboardPage = () => {
                     title="Total Books"
                     value="12"
                     description="+2 from last month"
-                    icon={<Book className="h-4 w-4" />}
+                    icon={<Book className="h-5 w-5" />}
                 />
                 <StatCard
                     title="Projects"
                     value="4"
                     description="1 active project"
-                    icon={<FolderKanban className="h-4 w-4" />}
+                    icon={<FolderKanban className="h-5 w-5" />}
                 />
                 <StatCard
                     title="Languages"
                     value="6"
                     description="English, Chinese, Hindi..."
-                    icon={<Globe className="h-4 w-4" />}
+                    icon={<Globe className="h-5 w-5" />}
                 />
                 <StatCard
                     title="Total Words"
                     value="180K"
                     description="~45k words per project"
-                    icon={<BarChart className="h-4 w-4" />}
+                    icon={<BarChart className="h-5 w-5" />}
                 />
             </div>
 

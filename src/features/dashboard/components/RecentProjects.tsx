@@ -57,7 +57,7 @@ export const RecentProjects = () => {
                     <div key={index} className="py-4 first:pt-0 last:pb-0">
                         <div className="flex items-start justify-between mb-2">
                             <div>
-                                <h3 className="font-semibold">{project.name}</h3>
+                                <h3 className="font-semibold font-sans">{project.name}</h3>
                                 <p className="text-sm text-muted-foreground">{project.details}</p>
                             </div>
                             <div className="flex items-center gap-2">
