@@ -25,15 +25,13 @@ import {
 } from '@/shared/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/shared/components/ui/tooltip';
 
-const NavItem = ({
-                     to,
-                     icon: Icon,
-                     label,
-                 }: {
+interface NavItemProps {
     to: string;
     icon: React.ElementType;
     label: string;
-}) => {
+}
+
+const NavItem = ({ to, icon: Icon, label }: NavItemProps) => {
     const { isCollapsed } = useSidebarStore();
 
     const link = (
@@ -41,16 +39,24 @@ const NavItem = ({
             to={to}
             className={({ isActive }) =>
                 cn(
-                    'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                    'group flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
                     {
+                        // Active state
+                        'bg-accent text-secondary': isActive,
+                        // Inactive state
+                        'text-foreground hover:bg-accent/50 hover:text-primary': !isActive,
+                        // Collapse
                         'justify-center': isCollapsed,
-                        'bg-muted text-primary': isActive,
                     }
                 )
             }
         >
-            <Icon className="h-5 w-5" />
-            <span className={cn('truncate', { hidden: isCollapsed })}>{label}</span>
+            <Icon
+                className={cn('h-5 w-5 transition-colors', {
+                    'text-primary': useSidebarStore().isCollapsed ? false : undefined,
+                })}
+            />
+            {!isCollapsed && <span className="ml-3 truncate">{label}</span>}
         </NavLink>
     );
 
@@ -83,81 +89,75 @@ export const Sidebar = () => {
     return (
         <aside
             className={cn(
-                'hidden border-r bg-muted/40 lg:flex lg:flex-col fixed inset-y-0 left-0 z-10 transition-all duration-300 ease-in-out',
-                isCollapsed ? 'w-20' : 'w-64'
+                'fixed inset-y-0 left-0 z-10 flex flex-col bg-background border-r border-border transition-all duration-300',
+                { 'w-20': isCollapsed, 'w-64': !isCollapsed }
             )}
         >
-            {/* Header */}
-            <div className="flex h-16 items-center border-b px-4 lg:px-6 justify-between">
-                <div
-                    className={cn('flex items-center gap-2 font-semibold', {
-                        'justify-center w-full': isCollapsed,
-                    })}
+            {/* Logo + Toggle */}
+            <div className="flex items-center justify-between h-16 px-4 border-b border-border">
+                <Link to={'/'} className={cn('flex items-center gap-2', { 'justify-center w-full': isCollapsed })}>
+                    <BookMarked className="h-6 w-6 text-primary" />
+                    {!isCollapsed && <span className="text-lg font-serif font-semibold text-foreground">Books AI</span>}
+                </Link>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-foreground"
+                    onClick={toggleSidebar}
                 >
-                    <BookMarked className="h-6 w-6" />
-                    <span className={cn({ hidden: isCollapsed })}>Books AI</span>
-                </div>
-                <Button variant="ghost" size="icon" onClick={toggleSidebar} className="rounded-full">
-                    {isCollapsed ? (
-                        <ChevronRight className="h-5 w-5" />
-                    ) : (
-                        <ChevronLeft className="h-5 w-5" />
-                    )}
+                    {isCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
                 </Button>
             </div>
 
-            {/* Navigation Links */}
-            <nav className="flex-1 flex flex-col gap-2 px-2 text-sm font-medium lg:px-4 py-4">
+            {/* Navigation */}
+            <nav className="flex-1 px-2 py-4 space-y-1">
                 <NavItem to="/generator" icon={Wand2} label="Generator" />
                 <NavItem to="/dashboard" icon={LayoutDashboard} label="Dashboard" />
             </nav>
 
             {/* User Menu */}
-            <div className="mt-auto p-4 border-t">
+            <div className="px-4 py-4 border-t border-border">
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button
                             variant="ghost"
                             className={cn(
-                                'flex items-center gap-3 w-full',
-                                isCollapsed ? 'justify-center h-12' : 'justify-start p-2 h-auto'
+                                'flex items-center w-full transition-colors',
+                                {
+                                    'justify-center h-12': isCollapsed,
+                                    'justify-start gap-3 p-2 h-auto': !isCollapsed,
+                                }
                             )}
                         >
                             <Avatar className="h-9 w-9">
                                 <AvatarImage src={user?.picture} alt={user?.name} />
-                                <AvatarFallback>{user?.name?.[0].toUpperCase() ?? 'U'}</AvatarFallback>
+                                <AvatarFallback>{user?.name?.[0].toUpperCase() || 'U'}</AvatarFallback>
                             </Avatar>
-                            <div className={cn('flex flex-col items-start', { hidden: isCollapsed })}>
-                                <span className="font-semibold">{user?.name}</span>
-                                <span className="text-xs text-muted-foreground">{user?.email}</span>
-                            </div>
+                            {!isCollapsed && (
+                                <div className="flex flex-col items-start">
+                                    <span className="text-sm font-medium text-foreground">{user?.name}</span>
+                                    <span className="text-xs text-muted-foreground">{user?.email}</span>
+                                </div>
+                            )}
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <DropdownMenuContent align="end" forceMount className="w-56">
                         <DropdownMenuLabel className="font-normal">
                             <div className="flex flex-col space-y-1">
-                                <p className="text-sm font-medium leading-none">{user?.name}</p>
-                                <p className="text-xs leading-none text-muted-foreground">
-                                    {user?.email}
-                                </p>
+                                <p className="text-sm font-medium text-foreground">{user?.name}</p>
+                                <p className="text-xs text-muted-foreground">{user?.email}</p>
                             </div>
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
-                            <Link to="/dashboard">
-                                <LayoutDashboard className="mr-2 h-4 w-4" />
-                                <span>Dashboard</span>
-                            </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
                             <Link to="/settings">
-                                <Settings className="mr-2 h-4 w-4" />
+                                <Settings className="mr-2 h-4 w-4 text-muted-foreground" />
                                 <span>Settings</span>
                             </Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={handleLogout}>
-                            <LogOut className="mr-2 h-4 w-4" />
+                            <LogOut className="mr-2 h-4 w-4 text-muted-foreground" />
                             <span>Log out</span>
                         </DropdownMenuItem>
                     </DropdownMenuContent>

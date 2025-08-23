@@ -2,6 +2,7 @@
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Badge } from '@/shared/components/ui/badge';
+import { cn } from '@/shared/lib/utils';
 
 interface BookLanguage {
     name: string;
@@ -13,30 +14,54 @@ interface GeneratedBookProps {
     title: string;
     description: string;
     languages: BookLanguage[];
+    className?: string;
+    status?: 'completed' | 'processing' | 'failed';
 }
 
-export const GeneratedBook = ({ title, description, languages }: GeneratedBookProps) => {
+export const GeneratedBook = ({
+                                  title,
+                                  description,
+                                  languages,
+                                  className,
+                                  status = 'completed',
+                              }: GeneratedBookProps) => {
+    const statusLabel =
+        status === 'completed' ? 'Completed' : status === 'processing' ? 'Processing' : 'Failed';
+    const statusVariant =
+        status === 'completed' ? 'secondary' : status === 'processing' ? 'outline' : 'destructive';
+
     return (
-        <Card>
-            <CardHeader>
-                <div className="flex items-start justify-between">
-                    <div>
-                        <CardTitle>{title}</CardTitle>
-                        <CardDescription>{description}</CardDescription>
+        <Card className={cn(className)}>
+            <CardHeader className="pb-3">
+                <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                        <CardTitle className="text-lg font-semibold tracking-tight text-foreground truncate">
+                            {title}
+                        </CardTitle>
+                        <CardDescription className="mt-1">
+                            {description}
+                        </CardDescription>
                     </div>
-                    <Badge variant="secondary">Completed</Badge>
+                    <Badge variant={statusVariant}>{statusLabel}</Badge>
                 </div>
             </CardHeader>
-            <CardContent className="grid sm:grid-cols-3 gap-4">
+
+            <CardContent className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
                 {languages.map((lang) => (
-                    <div key={lang.code} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-background text-sm font-semibold">
+                    <div
+                        key={lang.code}
+                        className="flex items-center justify-between gap-3 rounded-lg bg-muted p-3"
+                    >
+                        <div className="flex items-center gap-3 min-w-0">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-background text-sm font-semibold text-foreground">
                                 {lang.code}
                             </div>
-                            <span className="text-sm font-medium">{lang.name}</span>
+                            <span className="truncate text-sm font-medium text-foreground">{lang.name}</span>
                         </div>
-                        <Link to={lang.link} className="text-sm font-medium text-primary hover:underline">
+                        <Link
+                            to={lang.link}
+                            className="shrink-0 text-sm font-medium text-primary hover:underline"
+                        >
                             View Doc
                         </Link>
                     </div>

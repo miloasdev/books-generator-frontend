@@ -10,7 +10,6 @@ import { Switch } from '@/shared/components/ui/switch';
 import { Button } from '@/shared/components/ui/button';
 import { SettingsCard } from '../components/SettingsCard';
 import { settingsSchema, type SettingsFormValues } from '../lib/schemas';
-import {Breadcrumb} from "@/shared/components/Breadcrumb.tsx";
 
 export const SettingsPage = () => {
     const { toast } = useToast();
@@ -42,7 +41,6 @@ export const SettingsPage = () => {
 
     return (
         <div className="max-w-4xl mx-auto space-y-8">
-            <Breadcrumb />
             <div>
                 <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
                 <p className="text-muted-foreground">Manage your account and generation preferences.</p>
