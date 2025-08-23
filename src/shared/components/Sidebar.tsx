@@ -1,4 +1,5 @@
 // src/shared/components/Sidebar.tsx
+import * as React from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import {
     BookMarked,
@@ -23,23 +24,33 @@ import {
     DropdownMenuTrigger,
 } from '@/shared/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/shared/components/ui/tooltip';
-import * as React from "react";
 
-const NavItem = ({ to, icon: Icon, label }: { to: string; icon: React.ElementType; label: string }) => {
+const NavItem = ({
+                     to,
+                     icon: Icon,
+                     label,
+                 }: {
+    to: string;
+    icon: React.ElementType;
+    label: string;
+}) => {
     const { isCollapsed } = useSidebarStore();
 
-    const linkContent = (
+    const link = (
         <NavLink
             to={to}
             className={({ isActive }) =>
                 cn(
                     'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
-                    { 'justify-center': isCollapsed, 'bg-muted text-primary': isActive }
+                    {
+                        'justify-center': isCollapsed,
+                        'bg-muted text-primary': isActive,
+                    }
                 )
             }
         >
             <Icon className="h-5 w-5" />
-            <span className={cn('truncate', { 'hidden': isCollapsed })}>{label}</span>
+            <span className={cn('truncate', { hidden: isCollapsed })}>{label}</span>
         </NavLink>
     );
 
@@ -47,7 +58,7 @@ const NavItem = ({ to, icon: Icon, label }: { to: string; icon: React.ElementTyp
         return (
             <TooltipProvider delayDuration={0}>
                 <Tooltip>
-                    <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
+                    <TooltipTrigger asChild>{link}</TooltipTrigger>
                     <TooltipContent side="right">
                         <p>{label}</p>
                     </TooltipContent>
@@ -56,9 +67,8 @@ const NavItem = ({ to, icon: Icon, label }: { to: string; icon: React.ElementTyp
         );
     }
 
-    return linkContent;
+    return link;
 };
-
 
 export const Sidebar = () => {
     const { user, logout } = useAuthStore();
@@ -71,31 +81,53 @@ export const Sidebar = () => {
     };
 
     return (
-        <aside className={cn(
-            "hidden border-r bg-muted/40 lg:flex lg:flex-col fixed inset-y-0 left-0 z-10 transition-all duration-300 ease-in-out",
-            isCollapsed ? "w-20" : "w-64"
-        )}>
+        <aside
+            className={cn(
+                'hidden border-r bg-muted/40 lg:flex lg:flex-col fixed inset-y-0 left-0 z-10 transition-all duration-300 ease-in-out',
+                isCollapsed ? 'w-20' : 'w-64'
+            )}
+        >
+            {/* Header */}
             <div className="flex h-16 items-center border-b px-4 lg:px-6 justify-between">
-                <Link to="/generator" className={cn("flex items-center gap-2 font-semibold", { 'justify-center w-full': isCollapsed })}>
+                <div
+                    className={cn('flex items-center gap-2 font-semibold', {
+                        'justify-center w-full': isCollapsed,
+                    })}
+                >
                     <BookMarked className="h-6 w-6" />
-                    <span className={cn({ 'hidden': isCollapsed })}>Books AI</span>
-                </Link>
+                    <span className={cn({ hidden: isCollapsed })}>Books AI</span>
+                </div>
                 <Button variant="ghost" size="icon" onClick={toggleSidebar} className="rounded-full">
-                    {isCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
+                    {isCollapsed ? (
+                        <ChevronRight className="h-5 w-5" />
+                    ) : (
+                        <ChevronLeft className="h-5 w-5" />
+                    )}
                 </Button>
             </div>
-            <nav className="flex-1 grid items-start px-2 text-sm font-medium lg:px-4 py-4">
+
+            {/* Navigation Links */}
+            <nav className="flex-1 flex flex-col gap-2 px-2 text-sm font-medium lg:px-4 py-4">
                 <NavItem to="/generator" icon={Wand2} label="Generator" />
+                <NavItem to="/dashboard" icon={LayoutDashboard} label="Dashboard" />
             </nav>
+
+            {/* User Menu */}
             <div className="mt-auto p-4 border-t">
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className={cn("flex items-center gap-3 w-full", isCollapsed ? 'justify-center h-12' : 'justify-start p-2 h-auto')}>
+                        <Button
+                            variant="ghost"
+                            className={cn(
+                                'flex items-center gap-3 w-full',
+                                isCollapsed ? 'justify-center h-12' : 'justify-start p-2 h-auto'
+                            )}
+                        >
                             <Avatar className="h-9 w-9">
                                 <AvatarImage src={user?.picture} alt={user?.name} />
                                 <AvatarFallback>{user?.name?.[0].toUpperCase() ?? 'U'}</AvatarFallback>
                             </Avatar>
-                            <div className={cn("flex flex-col items-start", { 'hidden': isCollapsed })}>
+                            <div className={cn('flex flex-col items-start', { hidden: isCollapsed })}>
                                 <span className="font-semibold">{user?.name}</span>
                                 <span className="text-xs text-muted-foreground">{user?.email}</span>
                             </div>
@@ -105,7 +137,9 @@ export const Sidebar = () => {
                         <DropdownMenuLabel className="font-normal">
                             <div className="flex flex-col space-y-1">
                                 <p className="text-sm font-medium leading-none">{user?.name}</p>
-                                <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+                                <p className="text-xs leading-none text-muted-foreground">
+                                    {user?.email}
+                                </p>
                             </div>
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
