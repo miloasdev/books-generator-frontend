@@ -47,7 +47,8 @@ export const LoginPage = () => {
         try {
             const data = await authService.login(values);
             toast({ title: 'Login Successful', description: `Welcome back!` });
-            const user = { email: values.email, name: 'User' };
+            const name = values.email.split('@')[0]
+            const user = { email: values.email, name: name.slice(0,1) + name.slice(1) };
             login(user, data.access_token);
             navigate('/generator');
         } catch (error) {
