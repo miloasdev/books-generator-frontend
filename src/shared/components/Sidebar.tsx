@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import {
-    BookMarked,
     LayoutDashboard,
     Settings,
     Wand2,
@@ -12,7 +11,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 import { useAuthStore } from '@/shared/stores/auth';
-import { useSidebarStore } from '@/shared/stores/use-sidebar';
+import { useSidebarStore } from '@/shared/stores/use-sidebar.ts';
 import { Button } from '@/shared/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
 import {
@@ -24,6 +23,7 @@ import {
     DropdownMenuTrigger,
 } from '@/shared/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/shared/components/ui/tooltip';
+import {SidebarLogo} from "@/shared/components/SidebarLogo.tsx";
 
 interface NavItemProps {
     to: string;
@@ -41,11 +41,8 @@ const NavItem = ({ to, icon: Icon, label }: NavItemProps) => {
                 cn(
                     'group flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
                     {
-                        // Active state
                         'bg-accent text-secondary': isActive,
-                        // Inactive state
                         'text-foreground hover:bg-accent/50 hover:text-primary': !isActive,
-                        // Collapse
                         'justify-center': isCollapsed,
                     }
                 )
@@ -95,10 +92,7 @@ export const Sidebar = () => {
         >
             {/* Logo + Toggle */}
             <div className="flex items-center justify-between h-16 px-4 border-b border-border">
-                <Link to={'/'} className={cn('flex items-center gap-2', { 'justify-center w-full': isCollapsed })}>
-                    <BookMarked className="h-6 w-6 text-primary" />
-                    {!isCollapsed && <span className="text-lg font-serif font-semibold text-foreground">Books AI</span>}
-                </Link>
+                <SidebarLogo isCollapsed={isCollapsed} />
                 <Button
                     variant="ghost"
                     size="icon"

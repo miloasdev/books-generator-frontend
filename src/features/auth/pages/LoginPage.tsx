@@ -13,17 +13,28 @@ import { useToast } from '@/shared/hooks/use-toast';
 import { loginSchema, type LoginFormValues } from '@/features/auth/lib/schemas';
 import { authService } from '../services/authService';
 import { getErrorMessage } from "@/shared/lib";
+import {useEffect} from "react";
 
 const GoogleIcon = () => (
-    <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
-        <path fill="currentColor" d="M488 261.8C488 403.3 381.5 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 126 23.4 172.9 61.9l-76.4 76.4c-24.1-23.4-58.4-38-96.5-38-80.6 0-146.5 65.9-146.5 146.5s65.9 146.5 146.5 146.5c94.2 0 135.3-65.5 139.8-100.2H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path>
+    <svg className="mr-2 h-4 w-4" aria-hidden="true" viewBox="0 0 488 512">
+        <path
+            fill="currentColor"
+            d="M488 261.8C488 403.3 381.5 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 126 23.4 172.9 61.9l-76.4 76.4c-24.1-23.4-58.4-38-96.5-38-80.6 0-146.5 65.9-146.5 146.5s65.9 146.5 146.5 146.5c94.2 0 135.3-65.5 139.8-100.2H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"
+        />
     </svg>
 );
 
 export const LoginPage = () => {
+    const {isAuthenticated} = useAuthStore()
+    const navigate = useNavigate()
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/generator', { replace: true });
+        }
+    }, [isAuthenticated, navigate])
+
     const [isSubmitting, setIsSubmitting] = React.useState(false);
     const { login } = useAuthStore();
-    const navigate = useNavigate();
     const { toast } = useToast();
 
     const form = useForm<LoginFormValues>({
@@ -47,14 +58,14 @@ export const LoginPage = () => {
     };
 
     return (
-        <div className="w-full h-screen lg:grid lg:grid-cols-2">
-            <div className="flex items-center justify-center py-12">
-                <Card className="mx-auto w-full max-w-sm border-0 shadow-none lg:border lg:shadow-sm">
-                    <CardHeader>
-                        <CardTitle className="text-2xl">Login</CardTitle>
-                        <CardDescription>Enter your email below to login to your account</CardDescription>
-                    </CardHeader>
-                    <CardContent>
+        <Card className="w-full max-w-3xl">
+            <CardHeader className="text-center">
+                <CardTitle className="text-3xl font-serif">Login</CardTitle>
+                <CardDescription>Enter your email below to login to your account</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
+                    <div className="flex flex-col justify-center h-full">
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
                                 <FormField
@@ -63,7 +74,9 @@ export const LoginPage = () => {
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Email</FormLabel>
-                                            <FormControl><Input placeholder="m@example.com" {...field} /></FormControl>
+                                            <FormControl>
+                                                <Input placeholder="m@example.com" {...field} />
+                                            </FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )}
@@ -79,7 +92,9 @@ export const LoginPage = () => {
                                                     Forgot your password?
                                                 </Link>
                                             </div>
-                                            <FormControl><Input type="password" {...field} /></FormControl>
+                                            <FormControl>
+                                                <Input type="password" {...field} />
+                                            </FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )}
@@ -91,23 +106,25 @@ export const LoginPage = () => {
                                 <Button variant="outline" className="w-full" type="button">
                                     <GoogleIcon /> Login with Google
                                 </Button>
+                                <div className="text-center text-sm">
+                                    Don&apos;t have an account?{' '}
+                                    <Link to="/auth/register" className="underline">
+                                        Sign up
+                                    </Link>
+                                </div>
                             </form>
                         </Form>
-                        <div className="mt-4 text-center text-sm">
-                            Don&apos;t have an account?{" "}
-                            <Link to="/auth/register" className="underline">Sign up</Link>
+                    </div>
+                    <div className="flex flex-col justify-center h-full p-4">
+                        <div className="text-center space-y-4">
+                            <blockquote className="text-2xl font-serif italic text-foreground/80">
+                                "The beautiful thing about writing is that you don't have to get it right the first time, unlike, say, a brain surgeon."
+                            </blockquote>
+                            <footer className="text-lg font-sans text-foreground/60">- Robert Cormier</footer>
                         </div>
-                    </CardContent>
-                </Card>
-            </div>
-            <div className="hidden bg-muted lg:flex items-center justify-center p-12">
-                <div className="w-full max-w-md text-center">
-                    <blockquote className="text-4xl font-serif italic text-foreground/80">
-                        "The beautiful thing about writing is that you don't have to get it right the first time, unlike, say, a brain surgeon."
-                    </blockquote>
-                    <footer className="mt-4 text-xl font-sans text-foreground/60">- Robert Cormier</footer>
+                    </div>
                 </div>
-            </div>
-        </div>
+            </CardContent>
+        </Card>
     );
 };

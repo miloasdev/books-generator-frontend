@@ -25,8 +25,8 @@ export const UserNav = () => {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="p-0 rounded-full">
-                    <Avatar className="h-8 w-8">
+                <Button variant="ghost" className="p-0 rounded-full hover:text-foreground hover:bg-secondary" >
+                    <Avatar className="h-8 w-8 border border-primary">
                         <AvatarImage src={user?.picture} alt={user?.name} />
                         <AvatarFallback>{user?.name?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
                     </Avatar>
