@@ -27,7 +27,7 @@ export const GenerationConfig = ({ control }: GenerationConfigProps) => {
     return (
         <Card className="lg:col-span-2">
             <CardHeader>
-                <CardTitle>AI Configuration</CardTitle>
+                <CardTitle className={'font-serif'}>AI Configuration</CardTitle>
                 <CardDescription>Adjust the settings for the generation process.</CardDescription>
             </CardHeader>
             <CardContent>

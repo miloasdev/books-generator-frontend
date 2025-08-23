@@ -62,7 +62,7 @@ export const SheetConnector = ({ control }: SheetConnectorProps) => {
     return (
         <Card className="lg:col-span-3">
             <CardHeader>
-                <CardTitle>Content Source</CardTitle>
+                <CardTitle className={'font-serif'}>Content Source</CardTitle>
                 <CardDescription>Connect your Google Sheet to import chapters.</CardDescription>
             </CardHeader>
             <CardContent>

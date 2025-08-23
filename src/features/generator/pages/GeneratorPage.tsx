@@ -6,8 +6,12 @@ import { Button } from '@/shared/components/ui/button';
 import { Form } from '@/shared/components/ui/form';
 import { SheetConnector } from '../components/SheetConnector';
 import { GenerationConfig } from '../components/GenerationConfig';
-import { bookGeneratorInputSchema, bookGeneratorSchema, type BookGeneratorFormValues } from '../lib/schemas';
-import {useNavigate} from "react-router-dom";
+import {
+    bookGeneratorInputSchema,
+    bookGeneratorSchema,
+    type BookGeneratorFormValues,
+} from '../lib/schemas';
+import { useNavigate } from 'react-router-dom';
 
 export const GeneratorPage = () => {
     const navigate = useNavigate();
@@ -28,14 +32,14 @@ export const GeneratorPage = () => {
     function onSubmit(data: BookGeneratorFormValues) {
         const result = bookGeneratorSchema.safeParse(data);
         if (result.success) {
-            console.log("Processed Data:", result.data);
+            console.log('Processed Data:', result.data);
             toast({
-                title: "Job Submitted!",
-                description: "Your books are now being processed.",
+                title: 'Job Submitted!',
+                description: 'Your books are now being processed.',
             });
             navigate('/processing/');
         } else {
-            console.error("Validation Errors:", result.error.flatten().fieldErrors);
+            console.error('Validation Errors:', result.error.flatten().fieldErrors);
             Object.entries(result.error.flatten().fieldErrors).forEach(([name, messages]) => {
                 form.setError(name as keyof BookGeneratorFormValues, {
                     type: 'manual',
@@ -43,29 +47,42 @@ export const GeneratorPage = () => {
                 });
             });
             toast({
-                variant: "destructive",
-                title: "Validation Error",
-                description: "Please check the highlighted fields and try again.",
+                variant: 'destructive',
+                title: 'Validation Error',
+                description: 'Please check the highlighted fields and try again.',
             });
         }
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8">
+            {/* Page Header */}
             <div>
-                <h1 className="text-3xl font-bold tracking-tight">Generate Your Books</h1>
-                <p className="text-muted-foreground">Configure your content source and AI settings.</p>
+                <h1 className="font-serif text-4xl font-bold tracking-tight text-foreground">
+                    Generate Your Books
+                </h1>
+                <p className="text-muted-foreground">
+                    Configure your content source and AI settings.
+                </p>
             </div>
 
+            {/* Form */}
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                     <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
+                        {/* Left Column */}
                         <div className="lg:col-span-3 flex flex-col gap-8">
                             <SheetConnector control={form.control} />
-                            <Button type="submit" size="lg" className="w-full lg:w-auto lg:self-end">
+                            <Button
+                                type="submit"
+                                size="lg"
+                                className="w-full lg:w-auto lg:self-end"
+                            >
                                 Generate Books
                             </Button>
                         </div>
+
+                        {/* Right Column */}
                         <div className="lg:col-span-2">
                             <GenerationConfig control={form.control} />
                         </div>
