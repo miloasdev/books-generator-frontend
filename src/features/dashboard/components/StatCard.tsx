@@ -10,10 +10,10 @@ interface StatCardProps {
 
 export const StatCard = ({ title, value, icon, description }: StatCardProps) => {
     return (
-        <Card>
+        <Card className="bg-card border border-border">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{title}</CardTitle>
-                <div className="text-muted-foreground">{icon}</div>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
+                <div className="text-primary">{icon}</div>
             </CardHeader>
             <CardContent>
                 <div className="text-2xl font-bold">{value}</div>

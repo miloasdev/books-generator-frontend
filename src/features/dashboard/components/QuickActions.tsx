@@ -11,9 +11,9 @@ import { PlusCircle, FileText, Settings } from 'lucide-react';
 
 export const QuickActions = () => {
     return (
-        <Card>
+        <Card className="bg-card border border-border">
             <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
+                <CardTitle className="font-serif">Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
                 <Button asChild className="w-full justify-start">

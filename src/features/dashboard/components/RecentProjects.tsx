@@ -42,10 +42,10 @@ const projects = [
 
 export const RecentProjects = () => {
     return (
-        <Card>
+        <Card className="bg-card border border-border">
             <CardHeader className="flex flex-row items-center justify-between">
                 <div>
-                    <CardTitle>Recent Projects</CardTitle>
+                    <CardTitle className="font-serif">Recent Projects</CardTitle>
                     <CardDescription>An overview of your latest work.</CardDescription>
                 </div>
                 <Button variant="link" className="pr-0">
@@ -61,7 +61,7 @@ export const RecentProjects = () => {
                                 <p className="text-sm text-muted-foreground">{project.details}</p>
                             </div>
                             <div className="flex items-center gap-2">
-                                <Badge variant="secondary">Completed</Badge>
+                                <Badge className="bg-primary/10 hover:text-secondary text-primary border border-primary/20">Completed</Badge>
                                 <Button variant="ghost" size="icon" className="h-8 w-8">
                                     <MoreHorizontal className="h-4 w-4" />
                                 </Button>
