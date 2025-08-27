@@ -15,25 +15,11 @@ import { getErrorMessage } from "@/shared/lib";
 import {useEffect} from "react";
 import {GoogleIcon} from "@/features/auth/components/GoogleIcon.tsx";
 import {FamousQuote} from "@/features/auth/components/FamousQuote.tsx";
-
-type APIResponse<T> = {
-    status: 'success' | 'error';
-    message?: string;
-    data?: T;
-}
-
-type LoggedUser = {
-    id: number;
-    email: string;
-    token: {
-        access_token: string;
-        token_type: string;
-    }
-}
+import {authService} from "@/features/auth/services/authService.ts";
 
 export const LoginPage = () => {
     const [isSubmitting, setIsSubmitting] = React.useState(false);
-    const { login } = useAuthStore();
+    const { setToken } = useAuthStore();
     const navigate = useNavigate()
     const { toast } = useToast();
 
@@ -45,36 +31,37 @@ export const LoginPage = () => {
     const onSubmit = async (values: LoginFormValues) => {
         setIsSubmitting(true);
         try {
-            const formData = new URLSearchParams();
-            formData.append('username', values.email);  // FastAPI expects 'username'
-            formData.append('password', values.password);
+            const { data } = await authService.login(values);
 
-            const response = await fetch('http://localhost:8000/auth/token', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: formData.toString(),
+            if (!data.success || !data.data) {
+                toast({
+                    variant: 'destructive',
+                    title: 'Login Failed',
+                    description: data.error?.message || 'Invalid response from server',
+                });
+                return;
+            }
+
+            toast({
+                variant: 'default',
+                title: 'Login Successful',
+                description: data.message,
             });
 
-            const result : APIResponse<LoggedUser> = await response.json();
-            if (result.status === 'success' && result.message && result.data) {
-                const user = {
-                    id: result.data.id,
-                    email: result.data.email,
-                }
-                login(user, result.data.token.access_token);
-                toast({ title: `Logging in as ${result.data.email}`, description: result.message });
-                navigate('/generator');
-            } else {
-                toast({ title: `Login Failed`, description: result.message, variant: "destructive" });
-            }
+            setToken(data.data.access_token);
+            navigate('/generator');
+
         } catch (error) {
-            toast({ variant: 'destructive', title: 'Login Failed', description: getErrorMessage(error) });
+            toast({
+                variant: 'destructive',
+                title: 'Login Failed',
+                description: getErrorMessage(error),
+            });
         } finally {
             setIsSubmitting(false);
         }
     };
+
 
     const {isAuthenticated} = useAuthStore()
 

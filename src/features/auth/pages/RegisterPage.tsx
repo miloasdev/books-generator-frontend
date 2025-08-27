@@ -15,17 +15,7 @@ import {useAuthStore} from "@/shared/stores/auth.ts";
 import {useEffect} from "react";
 import {GoogleIcon} from "@/features/auth/components/GoogleIcon.tsx";
 import {FamousQuote} from "@/features/auth/components/FamousQuote.tsx";
-
-type APIResponse<T> = {
-    status: 'success' | 'error';
-    message?: string;
-    data?: T;
-}
-
-type User = {
-    id: number;
-    email: string;
-}
+import {authService} from "@/features/auth/services/authService.ts";
 
 export const RegisterPage = () => {
     const form = useForm<RegisterFormValues>({
@@ -35,31 +25,38 @@ export const RegisterPage = () => {
 
     const [isSubmitting, setIsSubmitting] = React.useState(false);
     const {toast} = useToast();
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
     const onSubmit = async (values: RegisterFormValues) => {
         setIsSubmitting(true);
         try {
-            const response = await fetch('http://localhost:8000/auth/register', {
-                method: 'POST',
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(values),
-            })
-            const body : APIResponse<User> = await response.json()
-            if (body.status === 'success') {
-                toast({title: 'Registration Successful', description: body.message});
-                navigate('/auth/login');
+            const res = await authService.register(values);
+            const api_res = res.data;
+
+            if (api_res.success && api_res.data) {
+                toast({
+                    title: 'Registration Success',
+                    description: `${api_res.message?.split(".")[0]} for ${api_res.data.email}`,
+                });
+                navigate('/auth/login', { replace: true });
             } else {
-                toast({title: 'Registration Failed', description: body.message, variant: "destructive"});
+                toast({
+                    title: 'Registration Failed',
+                    description: api_res.message || 'Unknown error occurred.',
+                    variant: 'destructive',
+                });
             }
         } catch (error) {
-            toast({variant: 'destructive', title: 'Registration Failed', description: getErrorMessage(error)});
+            toast({
+                title: 'Registration Failed',
+                description: getErrorMessage(error),
+                variant: 'destructive',
+            });
         } finally {
             setIsSubmitting(false);
         }
     };
+
 
     const {isAuthenticated} = useAuthStore()
     useEffect(() => {

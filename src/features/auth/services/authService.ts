@@ -1,32 +1,18 @@
-import {api} from '@/shared/services/api';
-import type {LoginFormValues, RegisterFormValues} from '../lib/schemas';
-
-interface LoginResponse {
-    access_token: string;
-    token_type: string;
-}
-
-const USE_MOCK_AUTH = false;
+import type { RegisterFormValues, LoginFormValues } from '../lib/schemas';
+import type { RegisterResponse, LoginResponse } from '@/shared/types/auth';
+import { api } from '@/shared/services/api';
 
 export const authService = {
-    register: async (values: RegisterFormValues) => {
-        if (USE_MOCK_AUTH) {
-            await new Promise((r) => setTimeout(r, 500));
-            return { message: 'Mocked registration successful' };
-        }
-        return api.post('/auth/register', values);
+    register: (values: RegisterFormValues) =>
+        api.post<RegisterResponse>('/auth/register', values),
+
+    login: (values: LoginFormValues) => {
+        const formData = new FormData();
+        formData.set('username', values.email);
+        formData.set('password', values.password);
+
+        return api.post<LoginResponse>('/auth/token', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        });
     },
-
-    login: async (values: LoginFormValues): Promise<LoginResponse> => {
-        if (USE_MOCK_AUTH) {
-            await new Promise((r) => setTimeout(r, 500));
-            return {
-                access_token: 'mocked-access-token',
-                token_type: 'Bearer'
-            };
-        }
-
-        const response = await api.post<LoginResponse>('/auth/login', values);
-        return response.data;
-    }
 };
