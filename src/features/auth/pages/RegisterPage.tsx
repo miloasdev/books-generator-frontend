@@ -10,49 +10,63 @@ import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from '@/
 import {Input} from '@/shared/components/ui/input';
 import {useToast} from '@/shared/hooks/use-toast';
 import {registerSchema, type RegisterFormValues} from '../lib/schemas';
-import {authService} from '../services/authService';
 import {getErrorMessage} from '@/shared/lib';
 import {useAuthStore} from "@/shared/stores/auth.ts";
 import {useEffect} from "react";
+import {GoogleIcon} from "@/features/auth/components/GoogleIcon.tsx";
+import {FamousQuote} from "@/features/auth/components/FamousQuote.tsx";
 
-const GoogleIcon = () => (
-    <svg className="mr-2 h-4 w-4" aria-hidden="true" viewBox="0 0 488 512">
-        <path
-            fill="currentColor"
-            d="M488 261.8C488 403.3 381.5 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 126 23.4 172.9 61.9l-76.4 76.4c-24.1-23.4-58.4-38-96.5-38-80.6 0-146.5 65.9-146.5 146.5s65.9 146.5 146.5 146.5c94.2 0 135.3-65.5 139.8-100.2H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"
-        />
-    </svg>
-);
+type APIResponse<T> = {
+    status: 'success' | 'error';
+    message?: string;
+    data?: T;
+}
+
+type User = {
+    id: number;
+    email: string;
+}
 
 export const RegisterPage = () => {
-    const {isAuthenticated} = useAuthStore()
-    const navigate = useNavigate()
-    useEffect(() => {
-        if (isAuthenticated) {
-            navigate('/generator', { replace: true });
-        }
-    }, [isAuthenticated, navigate])
-
-    const [isSubmitting, setIsSubmitting] = React.useState(false);
-    const {toast} = useToast();
-
     const form = useForm<RegisterFormValues>({
         resolver: zodResolver(registerSchema),
         defaultValues: {email: '', password: ''},
     });
 
+    const [isSubmitting, setIsSubmitting] = React.useState(false);
+    const {toast} = useToast();
+    const navigate = useNavigate()
+
     const onSubmit = async (values: RegisterFormValues) => {
         setIsSubmitting(true);
         try {
-            await authService.register(values);
-            toast({title: 'Registration Successful', description: 'Please log in to continue.'});
-            navigate('/auth/login');
+            const response = await fetch('http://localhost:8000/auth/register', {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(values),
+            })
+            const body : APIResponse<User> = await response.json()
+            if (body.status === 'success') {
+                toast({title: 'Registration Successful', description: body.message});
+                navigate('/auth/login');
+            } else {
+                toast({title: 'Registration Failed', description: body.message, variant: "destructive"});
+            }
         } catch (error) {
             toast({variant: 'destructive', title: 'Registration Failed', description: getErrorMessage(error)});
         } finally {
             setIsSubmitting(false);
         }
     };
+
+    const {isAuthenticated} = useAuthStore()
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/generator', { replace: true });
+        }
+    }, [isAuthenticated, navigate])
 
     return (
         <Card className="w-full max-w-3xl">
@@ -108,13 +122,11 @@ export const RegisterPage = () => {
                         </Form>
                     </div>
                     <div className="flex flex-col justify-center h-full">
-                        <div className="text-center space-y-4 p-4">
-                            <blockquote className="text-2xl font-serif italic text-foreground/80">
-                                "Start writing, no matter what. The water does not flow until the faucet is turned
-                                on."
-                            </blockquote>
-                            <footer className="text-lg font-sans text-foreground/60">- Louis L'Amour</footer>
-                        </div>
+                        <FamousQuote
+                            className={"text-center space-y-4 p-4"}
+                            quote={"Start writing, no matter what. The water does not flow until the faucet is turned on."}
+                            auther={"Louis L'Amour"}
+                        />
                     </div>
                 </div>
             </CardContent>

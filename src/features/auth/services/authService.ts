@@ -1,12 +1,12 @@
-import { api } from '@/shared/services/api';
-import type { RegisterFormValues, LoginFormValues } from '../lib/schemas';
+import {api} from '@/shared/services/api';
+import type {LoginFormValues, RegisterFormValues} from '../lib/schemas';
 
 interface LoginResponse {
     access_token: string;
     token_type: string;
 }
 
-const USE_MOCK_AUTH = true;
+const USE_MOCK_AUTH = false;
 
 export const authService = {
     register: async (values: RegisterFormValues) => {
@@ -14,7 +14,6 @@ export const authService = {
             await new Promise((r) => setTimeout(r, 500));
             return { message: 'Mocked registration successful' };
         }
-
         return api.post('/auth/register', values);
     },
 

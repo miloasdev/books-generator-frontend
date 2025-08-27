@@ -11,30 +11,30 @@ import { Input } from '@/shared/components/ui/input';
 import { useAuthStore } from '@/shared/stores/auth';
 import { useToast } from '@/shared/hooks/use-toast';
 import { loginSchema, type LoginFormValues } from '@/features/auth/lib/schemas';
-import { authService } from '../services/authService';
 import { getErrorMessage } from "@/shared/lib";
 import {useEffect} from "react";
+import {GoogleIcon} from "@/features/auth/components/GoogleIcon.tsx";
+import {FamousQuote} from "@/features/auth/components/FamousQuote.tsx";
 
-const GoogleIcon = () => (
-    <svg className="mr-2 h-4 w-4" aria-hidden="true" viewBox="0 0 488 512">
-        <path
-            fill="currentColor"
-            d="M488 261.8C488 403.3 381.5 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 126 23.4 172.9 61.9l-76.4 76.4c-24.1-23.4-58.4-38-96.5-38-80.6 0-146.5 65.9-146.5 146.5s65.9 146.5 146.5 146.5c94.2 0 135.3-65.5 139.8-100.2H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"
-        />
-    </svg>
-);
+type APIResponse<T> = {
+    status: 'success' | 'error';
+    message?: string;
+    data?: T;
+}
+
+type LoggedUser = {
+    id: number;
+    email: string;
+    token: {
+        access_token: string;
+        token_type: string;
+    }
+}
 
 export const LoginPage = () => {
-    const {isAuthenticated} = useAuthStore()
-    const navigate = useNavigate()
-    useEffect(() => {
-        if (isAuthenticated) {
-            navigate('/generator', { replace: true });
-        }
-    }, [isAuthenticated, navigate])
-
     const [isSubmitting, setIsSubmitting] = React.useState(false);
     const { login } = useAuthStore();
+    const navigate = useNavigate()
     const { toast } = useToast();
 
     const form = useForm<LoginFormValues>({
@@ -45,18 +45,44 @@ export const LoginPage = () => {
     const onSubmit = async (values: LoginFormValues) => {
         setIsSubmitting(true);
         try {
-            const data = await authService.login(values);
-            toast({ title: 'Login Successful', description: `Welcome back!` });
-            const name = values.email.split('@')[0]
-            const user = { email: values.email, name: name.slice(0,1) + name.slice(1) };
-            login(user, data.access_token);
-            navigate('/generator');
+            const formData = new URLSearchParams();
+            formData.append('username', values.email);  // FastAPI expects 'username'
+            formData.append('password', values.password);
+
+            const response = await fetch('http://localhost:8000/auth/token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formData.toString(),
+            });
+
+            const result : APIResponse<LoggedUser> = await response.json();
+            if (result.status === 'success' && result.message && result.data) {
+                const user = {
+                    id: result.data.id,
+                    email: result.data.email,
+                }
+                login(user, result.data.token.access_token);
+                toast({ title: `Logging in as ${result.data.email}`, description: result.message });
+                navigate('/generator');
+            } else {
+                toast({ title: `Login Failed`, description: result.message, variant: "destructive" });
+            }
         } catch (error) {
             toast({ variant: 'destructive', title: 'Login Failed', description: getErrorMessage(error) });
         } finally {
             setIsSubmitting(false);
         }
     };
+
+    const {isAuthenticated} = useAuthStore()
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/generator', { replace: true });
+        }
+    }, [isAuthenticated, navigate])
 
     return (
         <Card className="w-full max-w-3xl">
@@ -117,12 +143,11 @@ export const LoginPage = () => {
                         </Form>
                     </div>
                     <div className="flex flex-col justify-center h-full p-4">
-                        <div className="text-center space-y-4">
-                            <blockquote className="text-2xl font-serif italic text-foreground/80">
-                                "The beautiful thing about writing is that you don't have to get it right the first time, unlike, say, a brain surgeon."
-                            </blockquote>
-                            <footer className="text-lg font-sans text-foreground/60">- Robert Cormier</footer>
-                        </div>
+                        <FamousQuote
+                            className={"text-center space-y-4"}
+                            quote={"The beautiful thing about writing is that you don't have to get it right the first time, unlike, say, a brain surgeon."}
+                            auther={"Robert Cormier"}
+                        />
                     </div>
                 </div>
             </CardContent>
