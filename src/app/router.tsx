@@ -26,6 +26,7 @@ import {
 } from '@/features/settings/pages/SettingsPage';
 import {PublicLayout} from "@/layouts/PublicLayout.tsx";
 import {ProtectedLayout} from "@/layouts/ProtectedLayout.tsx";
+import {SocialCallback} from "@/features/auth/pages/SocialCallbackPage.tsx";
 
 export const router = createBrowserRouter([
     {
@@ -34,7 +35,8 @@ export const router = createBrowserRouter([
             { index: true, element: <HomePage /> },
             { path: 'auth/login', element: <LoginPage /> },
             { path: 'auth/register', element: <RegisterPage /> },
-            { path: 'auth/reset-password', element: <ResetPasswordPage /> }
+            { path: 'auth/reset-password', element: <ResetPasswordPage /> },
+            { path: 'auth/social/callback', element: <SocialCallback />}
         ]
     },
     {

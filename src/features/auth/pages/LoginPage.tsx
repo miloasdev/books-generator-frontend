@@ -13,13 +13,14 @@ import { useToast } from '@/shared/hooks/use-toast';
 import { loginSchema, type LoginFormValues } from '@/features/auth/lib/schemas';
 import { getErrorMessage } from "@/shared/lib";
 import {useEffect} from "react";
-import {GoogleIcon} from "@/features/auth/components/GoogleIcon.tsx";
 import {FamousQuote} from "@/features/auth/components/FamousQuote.tsx";
 import {authService} from "@/features/auth/services/authService.ts";
+import {userService} from "@/shared/services/user.ts";
+import {GoogleAuthButton} from "@/features/auth/components/GoogleAuthButton.tsx";
 
 export const LoginPage = () => {
     const [isSubmitting, setIsSubmitting] = React.useState(false);
-    const { setToken } = useAuthStore();
+    const { setToken, logout, setUser } = useAuthStore();
     const navigate = useNavigate()
     const { toast } = useToast();
 
@@ -32,35 +33,31 @@ export const LoginPage = () => {
         setIsSubmitting(true);
         try {
             const { data } = await authService.login(values);
-
             if (!data.success || !data.data) {
-                toast({
-                    variant: 'destructive',
-                    title: 'Login Failed',
-                    description: data.error?.message || 'Invalid response from server',
-                });
+                toast({ variant: 'destructive', title: 'Login Failed', description: data.error?.message || 'Invalid response' });
                 return;
             }
 
-            toast({
-                variant: 'default',
-                title: 'Login Successful',
-                description: data.message,
-            });
-
             setToken(data.data.access_token);
-            navigate('/generator');
 
-        } catch (error) {
-            toast({
-                variant: 'destructive',
-                title: 'Login Failed',
-                description: getErrorMessage(error),
-            });
+            // Fetch user info
+            const userRes = await userService.get_user();
+            if (!userRes.data.success || !userRes.data.data) {
+                toast({ variant: 'destructive', title: 'Login Failed', description: 'Could not load user' });
+                logout();
+                return;
+            }
+
+            setUser(userRes.data.data);
+            toast({ title: 'Login Successful', description: data.message });
+            navigate('/generator');
+        } catch (err) {
+            toast({ variant: 'destructive', title: 'Login Failed', description: getErrorMessage(err) });
         } finally {
             setIsSubmitting(false);
         }
     };
+
 
 
     const {isAuthenticated} = useAuthStore()
@@ -117,9 +114,7 @@ export const LoginPage = () => {
                                     {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                     Login
                                 </Button>
-                                <Button variant="outline" className="w-full" type="button">
-                                    <GoogleIcon /> Login with Google
-                                </Button>
+                                <GoogleAuthButton />
                                 <div className="text-center text-sm">
                                     Don&apos;t have an account?{' '}
                                     <Link to="/auth/register" className="underline">

@@ -13,9 +13,9 @@ import {registerSchema, type RegisterFormValues} from '../lib/schemas';
 import {getErrorMessage} from '@/shared/lib';
 import {useAuthStore} from "@/shared/stores/auth.ts";
 import {useEffect} from "react";
-import {GoogleIcon} from "@/features/auth/components/GoogleIcon.tsx";
 import {FamousQuote} from "@/features/auth/components/FamousQuote.tsx";
 import {authService} from "@/features/auth/services/authService.ts";
+import {GoogleAuthButton} from "@/features/auth/components/GoogleAuthButton.tsx";
 
 export const RegisterPage = () => {
     const form = useForm<RegisterFormValues>({
@@ -106,9 +106,7 @@ export const RegisterPage = () => {
                                     {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
                                     Create an account
                                 </Button>
-                                <Button variant="outline" className="w-full" type="button">
-                                    <GoogleIcon/> Sign up with Google
-                                </Button>
+                                <GoogleAuthButton />
                                 <div className="text-center text-sm">
                                     Already have an account?{' '}
                                     <Link to="/auth/login" className="underline">
