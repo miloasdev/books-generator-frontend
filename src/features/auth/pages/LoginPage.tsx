@@ -37,9 +37,7 @@ export const LoginPage = () => {
                 toast({ variant: 'destructive', title: 'Login Failed', description: data.error?.message || 'Invalid response' });
                 return;
             }
-
             setToken(data.data.access_token);
-
             // Fetch user info
             const userRes = await userService.get_user();
             if (!userRes.data.success || !userRes.data.data) {
@@ -47,7 +45,6 @@ export const LoginPage = () => {
                 logout();
                 return;
             }
-
             setUser(userRes.data.data);
             toast({ title: 'Login Successful', description: data.message });
             navigate('/generator');

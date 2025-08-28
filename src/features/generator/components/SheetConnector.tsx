@@ -1,20 +1,19 @@
 // src/features/generator/components/SheetConnector.tsx
 import * as React from 'react';
-import {type Control, useController } from 'react-hook-form';
+import {type Control, useController, useFormContext} from 'react-hook-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Button } from '@/shared/components/ui/button';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from '@/shared/components/ui/form';
 import { Input } from '@/shared/components/ui/input';
 import { Checkbox } from '@/shared/components/ui/checkbox';
-import { Label } from '@/shared/components/ui/label';
 import type {BookGeneratorFormValues} from '../lib/schemas';
 import { FileText, Loader2, Zap } from 'lucide-react';
 import { ScrollArea } from '@/shared/components/ui/scroll-area';
-
-const mockChapters = Array.from({ length: 15 }, (_, i) => ({
-    id: `ch-${i + 1}`,
-    title: `Chapter ${i + 1}: ${i % 2 === 0 ? 'The Journey Begins' : 'A New Horizon'}`,
-}));
+import {getErrorMessage} from "@/shared/lib";
+import {generatorService} from "@/features/generator/services/generatorService.ts";
+import {useToast} from "@/shared/hooks/use-toast.ts";
+import type {SheetChapter} from "@/shared/types/generator.ts";
+import {Label} from "@/shared/components/ui/label.tsx";
 
 interface SheetConnectorProps {
     control: Control<BookGeneratorFormValues>;
@@ -43,7 +42,8 @@ const ChapterSelectionTools = ({ allChapters, onSelect }: { allChapters: {id: st
 
 export const SheetConnector = ({ control }: SheetConnectorProps) => {
     const [isConnecting, setIsConnecting] = React.useState(false);
-    const [chapters, setChapters] = React.useState<{id: string, title: string}[]>([]);
+    const [chapters, setChapters] = React.useState<SheetChapter[]>([]);
+    const { toast } = useToast()
 
     // Use the useController hook to get direct access to field properties
     const { field } = useController({
@@ -51,12 +51,23 @@ export const SheetConnector = ({ control }: SheetConnectorProps) => {
         control,
     });
 
-    const handleConnect = () => {
+    const {getValues} = useFormContext<BookGeneratorFormValues>()
+
+    const handleConnect = async () => {
+        const sheetUrl = getValues('googleSheetUrl')
         setIsConnecting(true);
-        setTimeout(() => {
-            setChapters(mockChapters);
+        try {
+            const { data } = await generatorService.connectToSheets(sheetUrl)
+            if (!data.success || !data.data) {
+                toast({ variant: 'destructive', title: 'Google Sheets Error', description: data.error?.message || 'Invalid response' });
+                return;
+            }
+            setChapters(data.data.chapters)
+        } catch (err) {
+            toast({ variant: 'destructive', title: 'Unable to connect to Google Sheet', description: getErrorMessage(err) });
+        } finally {
             setIsConnecting(false);
-        }, 1500);
+        }
     };
 
     return (
@@ -97,7 +108,11 @@ export const SheetConnector = ({ control }: SheetConnectorProps) => {
                             <ScrollArea className="h-72 w-full">
                                 <div className="space-y-3 pr-4">
                                     {chapters.map((chapter) => (
-                                        <div key={chapter.id} className="flex items-center space-x-3 rounded-md p-2 hover:bg-muted/50 transition-colors">
+                                        <Label
+                                            key={chapter.id}
+                                            htmlFor={chapter.id}
+                                            className="flex cursor-pointer items-center space-x-3 rounded-md p-2 hover:bg-muted/50 transition-colors"
+                                        >
                                             <Checkbox
                                                 id={chapter.id}
                                                 checked={field.value?.some(c => c.id === chapter.id)}
@@ -109,10 +124,13 @@ export const SheetConnector = ({ control }: SheetConnectorProps) => {
                                                     field.onChange(newSelection);
                                                 }}
                                             />
-                                            <Label htmlFor={chapter.id} className="flex-1 cursor-pointer font-normal">
-                                                {chapter.title}
-                                            </Label>
-                                        </div>
+                                            <div className="flex-1">
+                                                <span className="font-normal block">{chapter.title}</span>
+                                                <p className="text-sm text-muted-foreground line-clamp-1">
+                                                    {chapter.description}
+                                                </p>
+                                            </div>
+                                        </Label>
                                     ))}
                                 </div>
                             </ScrollArea>
