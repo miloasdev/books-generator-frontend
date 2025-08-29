@@ -1,7 +1,7 @@
 import { FormItem, FormLabel, FormMessage, FormDescription } from '@/shared/components/ui/form';
 import { Badge } from '@/shared/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/shared/components/ui/tooltip';
-import type { Control } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
 import { useController } from 'react-hook-form'; // 👈 Import useController
 import type { BookGeneratorFormValues } from '../lib/schemas';
 import { useEffect, useState } from "react";
@@ -11,11 +11,8 @@ import { Button } from "@/shared/components/ui/button";
 import { RotateCcw } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 
-interface SupportedLanguagesProps {
-    control: Control<BookGeneratorFormValues>;
-}
-
-export const SupportedLanguages = ({ control }: SupportedLanguagesProps) => {
+export const SupportedLanguages = () => {
+    const { control } = useFormContext<BookGeneratorFormValues>();
     // Get field state and methods at the top level
     const { field } = useController({
         name: "languages",

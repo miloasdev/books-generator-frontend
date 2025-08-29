@@ -1,57 +1,35 @@
 // src/features/generator/pages/GeneratorPage.tsx
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useToast } from '@/shared/hooks/use-toast';
 import { Button } from '@/shared/components/ui/button';
 import { Form } from '@/shared/components/ui/form';
 import { SheetConnector } from '../components/SheetConnector';
 import { GenerationConfig } from '../components/GenerationConfig';
 import {
-    bookGeneratorInputSchema,
     bookGeneratorSchema,
     type BookGeneratorFormValues,
 } from '../lib/schemas';
-import { useNavigate } from 'react-router-dom';
 
 export const GeneratorPage = () => {
-    const navigate = useNavigate();
-    const { toast } = useToast();
+    // const navigate = useNavigate();
+    // const { toast } = useToast();
 
     const form = useForm<BookGeneratorFormValues>({
-        resolver: zodResolver(bookGeneratorInputSchema),
+        resolver: zodResolver(bookGeneratorSchema),
         defaultValues: {
             googleSheetUrl: '',
             selectedChapters: [],
             writerIntroduction: '',
-            wordsPerChapter: '2500',
+            wordsPerChapter: 1500,
             languages: [{ id: 1, label: 'English' }],
-            enhancementPrompt: `Focus on clarity, engagement, and a professional tone. Improve the flow between paragraphs, add relevant examples or analogies where appropriate, and ensure the overall narrative is compelling and accessible to a broad audience.`,
+            enhancementPrompt: '',
         },
+        mode: 'onChange',
     });
 
     function onSubmit(data: BookGeneratorFormValues) {
-        const result = bookGeneratorSchema.safeParse(data);
-        if (result.success) {
-            console.log('Processed Data:', result.data);
-            toast({
-                title: 'Job Submitted!',
-                description: 'Your books are now being processed.',
-            });
-            navigate('/processing/');
-        } else {
-            console.error('Validation Errors:', result.error.flatten().fieldErrors);
-            Object.entries(result.error.flatten().fieldErrors).forEach(([name, messages]) => {
-                form.setError(name as keyof BookGeneratorFormValues, {
-                    type: 'manual',
-                    message: messages?.[0] || 'Invalid input',
-                });
-            });
-            toast({
-                variant: 'destructive',
-                title: 'Validation Error',
-                description: 'Please check the highlighted fields and try again.',
-            });
-        }
+        // No need for safeParse, the data is already valid and transformed!
+        console.log('Processed Data:', data);
     }
 
     return (
@@ -72,11 +50,12 @@ export const GeneratorPage = () => {
                     <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
                         {/* Left Column */}
                         <div className="lg:col-span-3 flex flex-col gap-8">
-                            <SheetConnector control={form.control} />
+                            <SheetConnector />
                             <Button
                                 type="submit"
                                 size="lg"
-                                className="w-full lg:w-auto lg:self-end"
+                                className="w-full lg:w-auto lg:self-end disabled:bg-black"
+                                disabled={!form.formState.isValid}
                             >
                                 Generate Books
                             </Button>
@@ -84,7 +63,7 @@ export const GeneratorPage = () => {
 
                         {/* Right Column */}
                         <div className="lg:col-span-2">
-                            <GenerationConfig control={form.control} />
+                            <GenerationConfig />
                         </div>
                     </div>
                 </form>

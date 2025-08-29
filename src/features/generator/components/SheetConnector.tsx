@@ -1,6 +1,6 @@
 // src/features/generator/components/SheetConnector.tsx
 import * as React from 'react';
-import {type Control, useController, useFormContext} from 'react-hook-form';
+import { useController, useFormContext } from 'react-hook-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Button } from '@/shared/components/ui/button';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from '@/shared/components/ui/form';
@@ -14,10 +14,6 @@ import {generatorService} from "@/features/generator/services/generatorService.t
 import {useToast} from "@/shared/hooks/use-toast.ts";
 import type {SheetChapter} from "@/shared/types/generator.ts";
 import {Label} from "@/shared/components/ui/label.tsx";
-
-interface SheetConnectorProps {
-    control: Control<BookGeneratorFormValues>;
-}
 
 const ChapterSelectionTools = ({ allChapters, onSelect }: { allChapters: {id: string, title: string}[], onSelect: (selection: {id: string, title: string}[]) => void }) => (
     <div className="flex flex-wrap gap-2 mb-4">
@@ -40,7 +36,8 @@ const ChapterSelectionTools = ({ allChapters, onSelect }: { allChapters: {id: st
     </div>
 );
 
-export const SheetConnector = ({ control }: SheetConnectorProps) => {
+export const SheetConnector = () => {
+    const { control, getValues } = useFormContext<BookGeneratorFormValues>()
     const [isConnecting, setIsConnecting] = React.useState(false);
     const [chapters, setChapters] = React.useState<SheetChapter[]>([]);
     const { toast } = useToast()
@@ -50,8 +47,6 @@ export const SheetConnector = ({ control }: SheetConnectorProps) => {
         name: "selectedChapters",
         control,
     });
-
-    const {getValues} = useFormContext<BookGeneratorFormValues>()
 
     const handleConnect = async () => {
         const sheetUrl = getValues('googleSheetUrl')

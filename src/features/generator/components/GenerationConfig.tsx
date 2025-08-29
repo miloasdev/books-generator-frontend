@@ -1,17 +1,14 @@
 // src/features/generator/components/GenerationConfig.tsx
-import type {Control} from 'react-hook-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from '@/shared/components/ui/form';
 import { Input } from '@/shared/components/ui/input';
 import { Textarea } from '@/shared/components/ui/textarea';
-import type {BookGeneratorFormValues} from '../lib/schemas';
 import {SupportedLanguages} from "@/features/generator/components/SupportedLanguages.tsx";
+import {useFormContext} from "react-hook-form";
+import type {BookGeneratorFormValues} from "@/features/generator/lib/schemas.ts";
 
-interface GenerationConfigProps {
-    control: Control<BookGeneratorFormValues>;
-}
-
-export const GenerationConfig = ({ control }: GenerationConfigProps) => {
+export const GenerationConfig = () => {
+    const { control } = useFormContext<BookGeneratorFormValues>()
     return (
         <Card className="lg:col-span-2">
             <CardHeader>
@@ -27,7 +24,11 @@ export const GenerationConfig = ({ control }: GenerationConfigProps) => {
                             <FormItem>
                                 <FormLabel>Words per Chapter</FormLabel>
                                 <FormControl>
-                                    <Input type="number" {...field} />
+                                    <Input
+                                        type="number"
+                                        {...field}
+                                        onChange={(e) => field.onChange(parseInt(e.target.value, 10) || 0)}
+                                    />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -41,14 +42,20 @@ export const GenerationConfig = ({ control }: GenerationConfigProps) => {
                             <FormItem>
                                 <FormLabel>Writer Introduction</FormLabel>
                                 <FormControl>
-                                    <Textarea placeholder="Introduce the author..." className="resize-none" {...field} />
+                                    <Textarea
+                                        placeholder="Introduce the author..."
+                                        className="resize-vertical min-h-[80px]"
+                                        {...field}
+                                        value={field.value ?? ""}
+                                        onChange={(e) => field.onChange(e.target.value)}
+                                    />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
 
-                    <SupportedLanguages control={control} />
+                    <SupportedLanguages />
 
                     <FormField
                         control={control}
@@ -59,8 +66,10 @@ export const GenerationConfig = ({ control }: GenerationConfigProps) => {
                                 <FormControl>
                                     <Textarea
                                         placeholder="e.g., Make the tone more formal..."
-                                        className="resize-vertical min-h-[120px]"
+                                        className="resize-vertical min-h-[80px]"
                                         {...field}
+                                        value={field.value ?? ""}
+                                        onChange={(e) => field.onChange(e.target.value)}
                                     />
                                 </FormControl>
                                 <FormDescription>
