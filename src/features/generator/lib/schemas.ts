@@ -2,7 +2,7 @@
 import { z } from 'zod';
 
 const languageSchema = z.object({
-    id: z.string(),
+    id: z.number(),
     label: z.string(),
 });
 

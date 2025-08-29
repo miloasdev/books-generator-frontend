@@ -24,7 +24,7 @@ export const GeneratorPage = () => {
             selectedChapters: [],
             writerIntroduction: '',
             wordsPerChapter: '2500',
-            languages: [{ id: 'en', label: 'English' }],
+            languages: [{ id: 1, label: 'English' }],
             enhancementPrompt: `Focus on clarity, engagement, and a professional tone. Improve the flow between paragraphs, add relevant examples or analogies where appropriate, and ensure the overall narrative is compelling and accessible to a broad audience.`,
         },
     });
