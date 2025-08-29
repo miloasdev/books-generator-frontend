@@ -2,7 +2,7 @@ import {Button} from "@/shared/components/ui/button.tsx";
 import {GoogleIcon} from "@/features/auth/components/GoogleIcon.tsx";
 
 export const GoogleAuthButton = () => {
-    const googleUrl = `${import.meta.env.VITE_API_URL}/auth/google/login`;
+    const googleUrl = `${import.meta.env.VITE_API_URL_V1}/auth/google/login`;
     const handleClick = () => window.location.href = googleUrl;
     return (
         <Button
