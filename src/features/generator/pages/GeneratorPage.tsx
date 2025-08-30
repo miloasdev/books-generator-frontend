@@ -9,10 +9,13 @@ import {
     bookGeneratorSchema,
     type BookGeneratorFormValues,
 } from '../lib/schemas';
+import {generatorService} from "@/features/generator/services/generatorService.ts";
+import { useToast } from "@/shared/hooks/use-toast";
+import {getErrorMessage} from "@/shared/lib";
 
 export const GeneratorPage = () => {
     // const navigate = useNavigate();
-    // const { toast } = useToast();
+    const { toast } = useToast();
 
     const form = useForm<BookGeneratorFormValues>({
         resolver: zodResolver(bookGeneratorSchema),
@@ -22,15 +25,27 @@ export const GeneratorPage = () => {
             selected_chapter_ids: [],
             writer_intro: '',
             words_per_chapter: 1500,
-            languages: [{ id: 1, label: 'English' }],
+            languages: [],
             ai_prompt: '',
         },
         mode: 'onChange',
     });
 
-    function onSubmit(data: BookGeneratorFormValues) {
-        // No need for safeParse, the data is already valid and transformed!
-        console.log('Processed Data:', data);
+    async function onSubmit(values: BookGeneratorFormValues) {
+        try{
+            const {data} = await generatorService.generateBook(values)
+            if (!data.success && !data.data) {
+                toast({title: "Something went wrong", description: data.error?.message, variant: "destructive"});
+                return;
+            }
+            toast({title: data.data?.message, description: `The book ID is ${data.data?.book_id}. Please be patient`});
+        } catch (error) {
+            toast({
+                title: 'Book generation failed',
+                description: getErrorMessage(error),
+                variant: 'destructive',
+            });
+        }
     }
 
     return (

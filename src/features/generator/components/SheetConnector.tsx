@@ -95,7 +95,7 @@ export const SheetConnector = () => {
                                                 onCheckedChange={(checked) => {
                                                     const currentSelection = field.value || [];
                                                     const newSelection = checked
-                                                        ? [...currentSelection, chapter]
+                                                        ? [...currentSelection, {id: chapter.id, title: chapter.title}]
                                                         : currentSelection.filter((c) => c.id !== chapter.id);
                                                     field.onChange(newSelection);
                                                 }}

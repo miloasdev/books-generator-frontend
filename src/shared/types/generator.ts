@@ -22,5 +22,11 @@ export type Languages = {
     languages: Language[]
 }
 
+type GenerateBook = {
+    message: string;
+    book_id: number;
+}
+
 export type SheetChapterResponse = ApiResponse<SheetChapters>
 export type SupportedLanguagesResponse = ApiResponse<Languages>
+export type GenerateBookResponse = ApiResponse<GenerateBook>

@@ -1,14 +1,14 @@
 // src/features/generator/lib/schemas.ts
 import { z } from 'zod';
 
-const languageSchema = z.object({
-    id: z.number(),
-    label: z.string(),
-});
-
 const chapterSchema = z.object({
     id: z.string(),
     title: z.string(),
+});
+
+const languageSchema = z.object({
+    id: z.number(),
+    code: z.string(),
 });
 
 // Define the input schema (what the form receives)

@@ -13,11 +13,10 @@ import { cn } from "@/shared/lib/utils";
 
 export const SupportedLanguages = () => {
     const { control } = useFormContext<BookGeneratorFormValues>();
-    // Get field state and methods at the top level
     const { field } = useController({
         name: "languages",
         control,
-        defaultValue: [], // It's good practice to provide a default value
+        defaultValue: [],
     });
 
     const [supportedLanguages, setSupportedLanguages] = useState<Language[] | null>(null);
@@ -53,10 +52,10 @@ export const SupportedLanguages = () => {
         if (supportedLanguages && field.value?.length === 0) {
             const englishLang = supportedLanguages.find(l => l.code === 'en');
             if (englishLang) {
-                field.onChange([{ id: englishLang.id, label: englishLang.name }]);
+                field.onChange([{ id: englishLang.id, code: englishLang.code }]);
             }
         }
-    }, [supportedLanguages, field]); // Correct dependencies
+    }, [supportedLanguages, field]);
 
     return (
         <FormItem>
@@ -99,7 +98,7 @@ export const SupportedLanguages = () => {
                                                 const newSelection = isSelected
                                                     // 👇 And also fixed here
                                                     ? field.value?.filter(l => Number(l.id) !== lang.id)
-                                                    : [...(field.value || []), { id: lang.id, label: lang.name }];
+                                                    : [...(field.value || []), { id: lang.id, code: lang.code }];
                                                 field.onChange(newSelection);
                                             }}
                                             className="cursor-pointer rounded-md"

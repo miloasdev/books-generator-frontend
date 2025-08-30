@@ -1,5 +1,6 @@
 import {api} from "@/shared/services/api.ts";
-import type {SheetChapterResponse, SupportedLanguagesResponse} from "@/shared/types/generator.ts";
+import type {GenerateBookResponse, SheetChapterResponse, SupportedLanguagesResponse} from "@/shared/types/generator.ts";
+import type {BookGeneratorFormValues} from "@/features/generator/lib/schemas.ts";
 
 export const generatorService = {
     connectToSheets: (url: string) => {
@@ -7,5 +8,8 @@ export const generatorService = {
     },
     getSupportedLanguages: () => {
         return api.get<SupportedLanguagesResponse>('/config/languages');
+    },
+    generateBook: (data: BookGeneratorFormValues) => {
+        return api.post<GenerateBookResponse>('/book/generate', data)
     }
 }
