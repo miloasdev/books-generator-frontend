@@ -18,11 +18,12 @@ export const GeneratorPage = () => {
         resolver: zodResolver(bookGeneratorSchema),
         defaultValues: {
             googleSheetUrl: '',
-            selectedChapters: [],
-            writerIntroduction: '',
-            wordsPerChapter: 1500,
+            cache_id: '',
+            selected_chapter_ids: [],
+            writer_intro: '',
+            words_per_chapter: 1500,
             languages: [{ id: 1, label: 'English' }],
-            enhancementPrompt: '',
+            ai_prompt: '',
         },
         mode: 'onChange',
     });

@@ -7,7 +7,8 @@ export type SheetChapter = {
     description: string;
 }
 export type SheetChapters = {
-    chapters: SheetChapter[]
+    cache_id: string;
+    chapters: SheetChapter[];
 }
 
 // SUPPORTED LANGUAGES

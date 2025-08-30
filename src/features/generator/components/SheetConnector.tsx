@@ -7,44 +7,24 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescripti
 import { Input } from '@/shared/components/ui/input';
 import { Checkbox } from '@/shared/components/ui/checkbox';
 import type {BookGeneratorFormValues} from '../lib/schemas';
-import { FileText, Loader2, Zap } from 'lucide-react';
+import { FileText, Loader2 } from 'lucide-react';
 import { ScrollArea } from '@/shared/components/ui/scroll-area';
 import {getErrorMessage} from "@/shared/lib";
 import {generatorService} from "@/features/generator/services/generatorService.ts";
 import {useToast} from "@/shared/hooks/use-toast.ts";
 import type {SheetChapter} from "@/shared/types/generator.ts";
 import {Label} from "@/shared/components/ui/label.tsx";
-
-const ChapterSelectionTools = ({ allChapters, onSelect }: { allChapters: {id: string, title: string}[], onSelect: (selection: {id: string, title: string}[]) => void }) => (
-    <div className="flex flex-wrap gap-2 mb-4">
-        <Button type="button" variant="outline" size="sm" onClick={() => onSelect(allChapters)}>Select All</Button>
-        <Button type="button" variant="outline" size="sm" onClick={() => onSelect([])}>Deselect All</Button>
-        <Button type="button" variant="outline" size="sm" onClick={() => onSelect(allChapters.filter((_, i) => (i + 1) % 2 !== 0))}>Select Odd</Button>
-        <Button type="button" variant="outline" size="sm" onClick={() => onSelect(allChapters.filter((_, i) => (i + 1) % 2 === 0))}>Select Even</Button>
-        <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => {
-                const randomSelection = allChapters.sort(() => 0.5 - Math.random()).slice(0, Math.floor(Math.random() * allChapters.length) + 1);
-                onSelect(randomSelection);
-            }}
-        >
-            <Zap className="mr-2 h-4 w-4" />
-            Random
-        </Button>
-    </div>
-);
+import ChaptersSelectActions from "@/features/generator/components/ChaptersSelectActions.tsx";
 
 export const SheetConnector = () => {
-    const { control, getValues } = useFormContext<BookGeneratorFormValues>()
+    const { control, getValues, setValue } = useFormContext<BookGeneratorFormValues>()
     const [isConnecting, setIsConnecting] = React.useState(false);
     const [chapters, setChapters] = React.useState<SheetChapter[]>([]);
     const { toast } = useToast()
 
     // Use the useController hook to get direct access to field properties
     const { field } = useController({
-        name: "selectedChapters",
+        name: "selected_chapter_ids",
         control,
     });
 
@@ -57,6 +37,7 @@ export const SheetConnector = () => {
                 toast({ variant: 'destructive', title: 'Google Sheets Error', description: data.error?.message || 'Invalid response' });
                 return;
             }
+            setValue('cache_id', data.data.cache_id)
             setChapters(data.data.chapters)
         } catch (err) {
             toast({ variant: 'destructive', title: 'Unable to connect to Google Sheet', description: getErrorMessage(err) });
@@ -99,7 +80,7 @@ export const SheetConnector = () => {
 
                     {chapters.length > 0 ? (
                         <div className="rounded-md border p-4">
-                            <ChapterSelectionTools allChapters={chapters} onSelect={field.onChange} />
+                            <ChaptersSelectActions allChapters={chapters} onSelect={field.onChange} />
                             <ScrollArea className="h-72 w-full">
                                 <div className="space-y-3 pr-4">
                                     {chapters.map((chapter) => (
@@ -129,7 +110,7 @@ export const SheetConnector = () => {
                                     ))}
                                 </div>
                             </ScrollArea>
-                            <FormMessage className="pt-2">{control.getFieldState("selectedChapters").error?.message}</FormMessage>
+                            <FormMessage className="pt-2">{control.getFieldState("selected_chapter_ids").error?.message}</FormMessage>
                         </div>
                     ) : (
                         <div className="flex h-72 w-full flex-col items-center justify-center rounded-md border-2 border-dashed">

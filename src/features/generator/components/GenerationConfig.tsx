@@ -19,7 +19,7 @@ export const GenerationConfig = () => {
                 <div className="space-y-8">
                     <FormField
                         control={control}
-                        name="wordsPerChapter"
+                        name="words_per_chapter"
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Words per Chapter</FormLabel>
@@ -37,7 +37,7 @@ export const GenerationConfig = () => {
 
                     <FormField
                         control={control}
-                        name="writerIntroduction"
+                        name="writer_intro"
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Writer Introduction</FormLabel>
@@ -59,7 +59,7 @@ export const GenerationConfig = () => {
 
                     <FormField
                         control={control}
-                        name="enhancementPrompt"
+                        name="ai_prompt"
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Content Enhancement Prompt</FormLabel>
