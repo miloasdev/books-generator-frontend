@@ -1,69 +1,38 @@
 // src/features/auth/pages/RegisterPage.tsx
-import * as React from 'react';
-import {useForm} from 'react-hook-form';
-import {zodResolver} from '@hookform/resolvers/zod';
-import {Link, useNavigate} from 'react-router-dom';
-import {Loader2} from 'lucide-react';
-import {Button} from '@/shared/components/ui/button';
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/shared/components/ui/card';
-import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from '@/shared/components/ui/form';
-import {Input} from '@/shared/components/ui/input';
-import {useToast} from '@/shared/hooks/use-toast';
-import {registerSchema, type RegisterFormValues} from '../lib/schemas';
-import {getErrorMessage} from '@/shared/lib';
-import {useAuthStore} from "@/shared/stores/auth.ts";
-import {useEffect} from "react";
-import {FamousQuote} from "@/features/auth/components/FamousQuote.tsx";
-import {authService} from "@/features/auth/services/authService.ts";
-import {GoogleAuthButton} from "@/features/auth/components/GoogleAuthButton.tsx";
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Link, useNavigate } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
+import { Button } from '@/shared/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form';
+import { Input } from '@/shared/components/ui/input';
+import { registerSchema, type RegisterFormValues } from '../lib/schemas';
+import { useAuthStore } from "@/shared/stores/auth.ts";
+import { useEffect } from "react";
+import { FamousQuote } from "@/features/auth/components/FamousQuote.tsx";
+import { GoogleAuthButton } from "@/features/auth/components/GoogleAuthButton.tsx";
+import { useAuthMutations } from '../hooks/useAuthMutations'; // 👈 Import the hook
 
 export const RegisterPage = () => {
+    const { isAuthenticated } = useAuthStore();
+    const navigate = useNavigate();
+    const { register, isRegistering } = useAuthMutations(); // 👈 Use the hook
+
     const form = useForm<RegisterFormValues>({
         resolver: zodResolver(registerSchema),
-        defaultValues: {email: '', password: ''},
+        defaultValues: { email: '', password: '' },
     });
 
-    const [isSubmitting, setIsSubmitting] = React.useState(false);
-    const {toast} = useToast();
-    const navigate = useNavigate();
-
     const onSubmit = async (values: RegisterFormValues) => {
-        setIsSubmitting(true);
-        try {
-            const res = await authService.register(values);
-            const api_res = res.data;
-
-            if (api_res.success && api_res.data) {
-                toast({
-                    title: 'Registration Success',
-                    description: `${api_res.message?.split(".")[0]} for ${api_res.data.email}`,
-                });
-                navigate('/auth/login', { replace: true });
-            } else {
-                toast({
-                    title: 'Registration Failed',
-                    description: api_res.message || 'Unknown error occurred.',
-                    variant: 'destructive',
-                });
-            }
-        } catch (error) {
-            toast({
-                title: 'Registration Failed',
-                description: getErrorMessage(error),
-                variant: 'destructive',
-            });
-        } finally {
-            setIsSubmitting(false);
-        }
+        register(values);
     };
 
-
-    const {isAuthenticated} = useAuthStore()
     useEffect(() => {
         if (isAuthenticated) {
             navigate('/generator', { replace: true });
         }
-    }, [isAuthenticated, navigate])
+    }, [isAuthenticated, navigate]);
 
     return (
         <Card className="w-full max-w-3xl">
@@ -79,31 +48,31 @@ export const RegisterPage = () => {
                                 <FormField
                                     control={form.control}
                                     name="email"
-                                    render={({field}) => (
+                                    render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Email</FormLabel>
                                             <FormControl>
                                                 <Input placeholder="m@example.com" {...field} />
                                             </FormControl>
-                                            <FormMessage/>
+                                            <FormMessage />
                                         </FormItem>
                                     )}
                                 />
                                 <FormField
                                     control={form.control}
                                     name="password"
-                                    render={({field}) => (
+                                    render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Password</FormLabel>
                                             <FormControl>
                                                 <Input type="password" {...field} />
                                             </FormControl>
-                                            <FormMessage/>
+                                            <FormMessage />
                                         </FormItem>
                                     )}
                                 />
-                                <Button type="submit" className="w-full" disabled={isSubmitting}>
-                                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
+                                <Button type="submit" className="w-full" disabled={isRegistering}>
+                                    {isRegistering && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                     Create an account
                                 </Button>
                                 <GoogleAuthButton />

@@ -1,43 +1,22 @@
-import { Navigate, useNavigate } from 'react-router-dom';
+// src/features/auth/components/ProtectedRoute.tsx
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAuthStore } from '@/shared/stores/auth';
-import { userService } from '@/shared/services/user';
-import * as React from "react";
+import { useUser } from '@/shared/hooks/useUser'; // 👈 Import the new hook
 
-interface ProtectedRouteProps {
-    children: React.ReactNode;
-}
+export const ProtectedRoute = () => {
+    const { isAuthenticated } = useAuthStore();
+    const { isLoading } = useUser(); // 👈 Use the hook to get the loading state
 
-export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-    const { token, user, setUser, logout } = useAuthStore();
-    const navigate = useNavigate();
-    const [checking, setChecking] = React.useState(true);
-
-    React.useEffect(() => {
-        const fetchUser = async () => {
-            // Only fetch if we have a token but no user loaded yet
-            if (token && !user) {
-                try {
-                    const res = await userService.get_user();
-                    if (!res.data.success || !res.data.data) throw new Error();
-                    setUser(res.data.data);
-                } catch {
-                    logout();
-                    navigate('/auth/login', { replace: true });
-                }
-            }
-            setChecking(false);
-        };
-        fetchUser();
-    }, [token, user, setUser, logout, navigate]);
-
-    // Optional: prevent flashing children until we know the auth state
-    if (checking) {
-        return <div>Loading...</div>; // replace with spinner/skeleton
+    // While we're verifying the token by fetching the user, show a loader
+    if (isLoading) {
+        return <div>Loading...</div>; // Or a full-page spinner
     }
 
-    if (!token) {
+    // If not loading and not authenticated, redirect to login
+    if (!isAuthenticated) {
         return <Navigate to="/auth/login" replace />;
     }
 
-    return <>{children}</>;
+    // If authenticated, render the protected layout and its children
+    return <Outlet />;
 };

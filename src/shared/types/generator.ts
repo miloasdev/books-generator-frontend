@@ -1,32 +1,38 @@
-import type {ApiResponse} from "@/shared/types/api.ts";
+// src/shared/types/generator.ts
+import type { ApiResponse } from '@/shared/types/api';
 
-// GOOGLE SHEETS CHAPTERS
+// Represents a single chapter fetched from a Google Sheet
 export type SheetChapter = {
     id: string;
     title: string;
     description: string;
-}
-export type SheetChapters = {
+};
+
+// The data structure returned after connecting to a Google Sheet
+export type SheetConnectionData = {
     cache_id: string;
     chapters: SheetChapter[];
-}
+};
 
-// SUPPORTED LANGUAGES
+// Represents a single supported language
 export type Language = {
     id: number;
     name: string;
     code: string;
-}
+};
 
-export type Languages = {
-    languages: Language[]
-}
+// The data structure for the list of supported languages
+export type LanguagesData = {
+    languages: Language[];
+};
 
-type GenerateBook = {
+// The data structure for the response after starting book generation
+export type GenerateBookData = {
     message: string;
     book_id: number;
-}
+};
 
-export type SheetChapterResponse = ApiResponse<SheetChapters>
-export type SupportedLanguagesResponse = ApiResponse<Languages>
-export type GenerateBookResponse = ApiResponse<GenerateBook>
+// --- API Response Types ---
+export type SheetConnectionResponse = ApiResponse<SheetConnectionData>;
+export type SupportedLanguagesResponse = ApiResponse<LanguagesData>;
+export type GenerateBookResponse = ApiResponse<GenerateBookData>;

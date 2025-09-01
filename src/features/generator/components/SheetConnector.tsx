@@ -6,45 +6,36 @@ import { Button } from '@/shared/components/ui/button';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from '@/shared/components/ui/form';
 import { Input } from '@/shared/components/ui/input';
 import { Checkbox } from '@/shared/components/ui/checkbox';
-import type {BookGeneratorFormValues} from '../lib/schemas';
+import type { BookGeneratorFormValues } from '../lib/schemas';
 import { FileText, Loader2 } from 'lucide-react';
 import { ScrollArea } from '@/shared/components/ui/scroll-area';
-import {getErrorMessage} from "@/shared/lib";
-import {generatorService} from "@/features/generator/services/generatorService.ts";
-import {useToast} from "@/shared/hooks/use-toast.ts";
-import type {SheetChapter} from "@/shared/types/generator.ts";
-import {Label} from "@/shared/components/ui/label.tsx";
+import type { SheetChapter } from "@/shared/types/generator.ts";
+import { Label } from "@/shared/components/ui/label.tsx";
 import ChaptersSelectActions from "@/features/generator/components/ChaptersSelectActions.tsx";
+import {useGeneratorMutations} from "@/features/generator/hooks/useGeneratorQueries.ts";
 
 export const SheetConnector = () => {
-    const { control, getValues, setValue } = useFormContext<BookGeneratorFormValues>()
-    const [isConnecting, setIsConnecting] = React.useState(false);
+    const { control, getValues, setValue } = useFormContext<BookGeneratorFormValues>();
     const [chapters, setChapters] = React.useState<SheetChapter[]>([]);
-    const { toast } = useToast()
+    const { connectToSheet, isConnecting, connectData } = useGeneratorMutations(); // 👈 Use the hook
 
-    // Use the useController hook to get direct access to field properties
     const { field } = useController({
         name: "selected_chapter_ids",
         control,
     });
 
-    const handleConnect = async () => {
-        const sheetUrl = getValues('googleSheetUrl')
-        setIsConnecting(true);
-        try {
-            const { data } = await generatorService.connectToSheets(sheetUrl)
-            if (!data.success || !data.data) {
-                toast({ variant: 'destructive', title: 'Google Sheets Error', description: data.error?.message || 'Invalid response' });
-                return;
-            }
-            setValue('cache_id', data.data.cache_id)
-            setChapters(data.data.chapters)
-        } catch (err) {
-            toast({ variant: 'destructive', title: 'Unable to connect to Google Sheet', description: getErrorMessage(err) });
-        } finally {
-            setIsConnecting(false);
-        }
+    const handleConnect = () => {
+        const sheetUrl = getValues('googleSheetUrl');
+        connectToSheet(sheetUrl);
     };
+
+    // Effect to update form and component state on successful API call
+    React.useEffect(() => {
+        if (connectData?.data.success && connectData.data.data) {
+            setValue('cache_id', connectData.data.data.cache_id);
+            setChapters(connectData.data.data.chapters);
+        }
+    }, [connectData, setValue]);
 
     return (
         <Card className="lg:col-span-3">
@@ -72,7 +63,6 @@ export const SheetConnector = () => {
                             </FormItem>
                         )}
                     />
-
                     <div className="space-y-2">
                         <FormLabel>Select Chapters</FormLabel>
                         <FormDescription>Choose which chapters to include in the generation.</FormDescription>

@@ -1,5 +1,4 @@
 // src/features/auth/pages/LoginPage.tsx
-import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate } from 'react-router-dom';
@@ -9,61 +8,32 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/sha
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form';
 import { Input } from '@/shared/components/ui/input';
 import { useAuthStore } from '@/shared/stores/auth';
-import { useToast } from '@/shared/hooks/use-toast';
 import { loginSchema, type LoginFormValues } from '@/features/auth/lib/schemas';
-import { getErrorMessage } from "@/shared/lib";
-import {useEffect} from "react";
-import {FamousQuote} from "@/features/auth/components/FamousQuote.tsx";
-import {authService} from "@/features/auth/services/authService.ts";
-import {userService} from "@/shared/services/user.ts";
-import {GoogleAuthButton} from "@/features/auth/components/GoogleAuthButton.tsx";
+import { useEffect } from "react";
+import { FamousQuote } from "@/features/auth/components/FamousQuote.tsx";
+import { GoogleAuthButton } from "@/features/auth/components/GoogleAuthButton.tsx";
+import { useAuthMutations } from '../hooks/useAuthMutations'; // 👈 Import the hook
 
 export const LoginPage = () => {
-    const [isSubmitting, setIsSubmitting] = React.useState(false);
-    const { setToken, logout, setUser } = useAuthStore();
-    const navigate = useNavigate()
-    const { toast } = useToast();
+    const { isAuthenticated } = useAuthStore();
+    const navigate = useNavigate();
+    const { login, isLoggingIn } = useAuthMutations(); // 👈 Use the hook
 
     const form = useForm<LoginFormValues>({
         resolver: zodResolver(loginSchema),
         defaultValues: { email: '', password: '' },
     });
 
-    const onSubmit = async (values: LoginFormValues) => {
-        setIsSubmitting(true);
-        try {
-            const { data } = await authService.login(values);
-            if (!data.success || !data.data) {
-                toast({ variant: 'destructive', title: 'Login Failed', description: data.error?.message || 'Invalid response' });
-                return;
-            }
-            setToken(data.data.access_token);
-            // Fetch user info
-            const userRes = await userService.get_user();
-            if (!userRes.data.success || !userRes.data.data) {
-                toast({ variant: 'destructive', title: 'Login Failed', description: 'Could not load user' });
-                logout();
-                return;
-            }
-            setUser(userRes.data.data);
-            toast({ title: 'Login Successful', description: data.message });
-            navigate('/generator');
-        } catch (err) {
-            toast({ variant: 'destructive', title: 'Login Failed', description: getErrorMessage(err) });
-        } finally {
-            setIsSubmitting(false);
-        }
+    // The onSubmit function is now just one line!
+    const onSubmit = (values: LoginFormValues) => {
+        login(values);
     };
-
-
-
-    const {isAuthenticated} = useAuthStore()
 
     useEffect(() => {
         if (isAuthenticated) {
             navigate('/generator', { replace: true });
         }
-    }, [isAuthenticated, navigate])
+    }, [isAuthenticated, navigate]);
 
     return (
         <Card className="w-full max-w-3xl">
@@ -107,8 +77,8 @@ export const LoginPage = () => {
                                         </FormItem>
                                     )}
                                 />
-                                <Button type="submit" className="w-full" disabled={isSubmitting}>
-                                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                <Button type="submit" className="w-full" disabled={isLoggingIn}>
+                                    {isLoggingIn && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                     Login
                                 </Button>
                                 <GoogleAuthButton />

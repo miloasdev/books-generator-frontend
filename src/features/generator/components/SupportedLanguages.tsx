@@ -1,15 +1,14 @@
+// src/features/generator/components/SupportedLanguages.tsx
 import { FormItem, FormLabel, FormMessage, FormDescription } from '@/shared/components/ui/form';
 import { Badge } from '@/shared/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/shared/components/ui/tooltip';
-import { useFormContext } from 'react-hook-form';
-import { useController } from 'react-hook-form'; // 👈 Import useController
+import { useFormContext, useController } from 'react-hook-form';
 import type { BookGeneratorFormValues } from '../lib/schemas';
-import { useEffect, useState } from "react";
-import { generatorService } from "@/features/generator/services/generatorService.ts";
-import type { Language } from "@/shared/types/generator.ts";
+import { useEffect } from "react";
 import { Button } from "@/shared/components/ui/button";
 import { RotateCcw } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
+import { useSupportedLanguages } from '../hooks/useGeneratorQueries'; // 👈 Import the hook
 
 export const SupportedLanguages = () => {
     const { control } = useFormContext<BookGeneratorFormValues>();
@@ -18,36 +17,9 @@ export const SupportedLanguages = () => {
         control,
         defaultValue: [],
     });
+    // 👇 Use the hook to fetch data. isLoading, error, and data are all handled for you.
+    const { data: supportedLanguages, isLoading, isError, refetch } = useSupportedLanguages();
 
-    const [supportedLanguages, setSupportedLanguages] = useState<Language[] | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    const getSupportedLanguages = async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            const { data } = await generatorService.getSupportedLanguages();
-            if (!data.success || !data.data) {
-                setError(data.message || "Failed to fetch supported languages.");
-                setSupportedLanguages(null);
-                return;
-            }
-            setSupportedLanguages(data.data.languages);
-        } catch {
-            setError("Unable to load languages. Please check your connection and try again.");
-            setSupportedLanguages(null);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // Fetch on mount
-    useEffect(() => {
-        getSupportedLanguages();
-    }, []);
-
-    // Correctly placed useEffect to set a default value
     useEffect(() => {
         if (supportedLanguages && field.value?.length === 0) {
             const englishLang = supportedLanguages.find(l => l.code === 'en');
@@ -64,7 +36,7 @@ export const SupportedLanguages = () => {
                 <FormDescription>Select languages for translation.</FormDescription>
             </div>
 
-            {loading && (
+            {isLoading && (
                 <div className="flex flex-wrap gap-2">
                     {Array.from({ length: 6 }).map((_, i) => (
                         <div key={i} className={cn("h-6 w-12 rounded-md animate-pulse bg-primary/20")} />
@@ -72,23 +44,21 @@ export const SupportedLanguages = () => {
                 </div>
             )}
 
-            {!loading && error && (
+            {isError && (
                 <div className="flex items-center gap-3 text-sm text-red-500">
-                    <span>{error}</span>
-                    <Button variant="outline" size="sm" onClick={getSupportedLanguages} className="flex items-center gap-1">
+                    <span>Unable to load languages.</span>
+                    <Button variant="outline" size="sm" onClick={() => refetch()} className="flex items-center gap-1">
                         <RotateCcw className="h-4 w-4" />
                         Retry
                     </Button>
                 </div>
             )}
 
-            {!loading && supportedLanguages && (
+            {supportedLanguages && (
                 <TooltipProvider delayDuration={100}>
                     <div className="flex flex-wrap gap-2">
                         {supportedLanguages.map((lang) => {
-                            // 👇 Type mismatch fixed here by coercing to a number for comparison
-                            // Note: The best long-term fix is to ensure your form schema expects a number for the id.
-                            const isSelected = field.value?.some(l => Number(l.id) === lang.id);
+                            const isSelected = field.value?.some(l => l.id === lang.id);
                             return (
                                 <Tooltip key={lang.id}>
                                     <TooltipTrigger asChild>
@@ -96,8 +66,7 @@ export const SupportedLanguages = () => {
                                             variant={isSelected ? 'default' : 'secondary'}
                                             onClick={() => {
                                                 const newSelection = isSelected
-                                                    // 👇 And also fixed here
-                                                    ? field.value?.filter(l => Number(l.id) !== lang.id)
+                                                    ? field.value?.filter(l => l.id !== lang.id)
                                                     : [...(field.value || []), { id: lang.id, code: lang.code }];
                                                 field.onChange(newSelection);
                                             }}

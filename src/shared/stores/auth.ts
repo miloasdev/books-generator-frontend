@@ -1,12 +1,7 @@
+// src/shared/stores/auth.ts
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-
-interface User {
-    id: number;
-    email: string;
-    name?: string;
-    picture?: string;
-}
+import type { User } from '@/shared/types/user'; // 👈 Import the centralized User type
 
 interface AuthState {
     user: User | null;
@@ -27,7 +22,7 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: false,
             isLoading: false,
             setUser: (user: User) => {
-                set({user})
+                set({ user });
             },
             setToken: (token) =>
                 set({ token: token, isAuthenticated: true, isLoading: false }),

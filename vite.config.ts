@@ -9,6 +9,9 @@ export default defineConfig({
             "@": path.resolve(__dirname, "./src"),
         },
     },
+    server: {
+        allowedHosts: ["5092457005c0.ngrok-free.app"],
+    },
     build: {
         rollupOptions: {
             output: {

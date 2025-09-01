@@ -8,9 +8,7 @@ import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form';
 import { Input } from '@/shared/components/ui/input';
-import { useToast } from '@/shared/hooks/use-toast';
 import { resetPasswordSchema, type ResetPasswordFormValues } from '../lib/schemas';
-import { mockResetPasswordSuccess, mockResetPasswordError } from '@/mocks/auth';
 import {useAuthStore} from "@/shared/stores/auth.ts";
 import {useEffect} from "react";
 
@@ -24,7 +22,6 @@ export const ResetPasswordPage = () => {
     }, [isAuthenticated, navigate])
 
     const [isSubmitting, setIsSubmitting] = React.useState(false);
-    const { toast } = useToast();
 
     const form = useForm<ResetPasswordFormValues>({
         resolver: zodResolver(resetPasswordSchema),
@@ -36,23 +33,6 @@ export const ResetPasswordPage = () => {
     const onSubmit = async (values: ResetPasswordFormValues) => {
         setIsSubmitting(true);
         console.log('Form values:', values);
-
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        if (values.email === 'notfound@example.com') {
-            toast({
-                variant: 'destructive',
-                title: 'Error',
-                description: mockResetPasswordError.error,
-            });
-            setIsSubmitting(false);
-        } else {
-            toast({
-                title: 'Request Sent',
-                description: mockResetPasswordSuccess.message,
-            });
-            setTimeout(() => navigate('/auth/login'), 2000);
-        }
     };
     return (
         <Form {...form}>

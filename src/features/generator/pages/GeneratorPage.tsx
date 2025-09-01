@@ -5,17 +5,12 @@ import { Button } from '@/shared/components/ui/button';
 import { Form } from '@/shared/components/ui/form';
 import { SheetConnector } from '../components/SheetConnector';
 import { GenerationConfig } from '../components/GenerationConfig';
-import {
-    bookGeneratorSchema,
-    type BookGeneratorFormValues,
-} from '../lib/schemas';
-import {generatorService} from "@/features/generator/services/generatorService.ts";
-import { useToast } from "@/shared/hooks/use-toast";
-import {getErrorMessage} from "@/shared/lib";
+import { bookGeneratorSchema, type BookGeneratorFormValues } from '../lib/schemas';
+import {Loader2} from "lucide-react";
+import {useGeneratorMutations} from "@/features/generator/hooks/useGeneratorQueries.ts";
 
 export const GeneratorPage = () => {
-    // const navigate = useNavigate();
-    const { toast } = useToast();
+    const { generateBook, isGenerating } = useGeneratorMutations(); // 👈 Use the hook
 
     const form = useForm<BookGeneratorFormValues>({
         resolver: zodResolver(bookGeneratorSchema),
@@ -32,20 +27,7 @@ export const GeneratorPage = () => {
     });
 
     async function onSubmit(values: BookGeneratorFormValues) {
-        try{
-            const {data} = await generatorService.generateBook(values)
-            if (!data.success && !data.data) {
-                toast({title: "Something went wrong", description: data.error?.message, variant: "destructive"});
-                return;
-            }
-            toast({title: data.data?.message, description: `The book ID is ${data.data?.book_id}. Please be patient`});
-        } catch (error) {
-            toast({
-                title: 'Book generation failed',
-                description: getErrorMessage(error),
-                variant: 'destructive',
-            });
-        }
+        generateBook(values);
     }
 
     return (
@@ -64,20 +46,18 @@ export const GeneratorPage = () => {
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                     <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
-                        {/* Left Column */}
                         <div className="lg:col-span-3 flex flex-col gap-8">
                             <SheetConnector />
                             <Button
                                 type="submit"
                                 size="lg"
                                 className="w-full lg:w-auto lg:self-end disabled:bg-black"
-                                disabled={!form.formState.isValid}
+                                disabled={!form.formState.isValid || isGenerating} // 👈 Disable on submit
                             >
+                                {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 Generate Books
                             </Button>
                         </div>
-
-                        {/* Right Column */}
                         <div className="lg:col-span-2">
                             <GenerationConfig />
                         </div>
