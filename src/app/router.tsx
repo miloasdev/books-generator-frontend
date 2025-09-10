@@ -24,7 +24,6 @@ export const router = createBrowserRouter([
         ]
     },
     {
-        // 👇 This is the new structure
         element: <ProtectedRoute />,
         children: [
             {
@@ -32,8 +31,8 @@ export const router = createBrowserRouter([
                 children: [
                     { path: 'dashboard', element: <DashboardPage /> },
                     { path: 'generator', element: <GeneratorPage /> },
-                    { path: 'processing', element: <ProcessingPage /> },
-                    { path: 'results', element: <ResultsPage /> },
+                    { path: 'processing/:bookId', element: <ProcessingPage /> },
+                    { path: 'results/:bookId', element: <ResultsPage /> },
                     { path: 'settings', element: <SettingsPage /> }
                 ]
             }

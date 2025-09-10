@@ -5,7 +5,6 @@ import { useToast } from '@/shared/hooks/use-toast';
 import { getErrorMessage } from '@/shared/lib';
 import { useNavigate } from 'react-router-dom';
 
-// Hook for fetching data (GET requests) - REMAINS THE SAME
 export const useSupportedLanguages = () => {
     return useQuery({
         queryKey: ['supportedLanguages'],
@@ -20,8 +19,7 @@ export const useSupportedLanguages = () => {
     });
 };
 
-// Hook for performing actions (POST requests) - NAME IS NOW CORRECT
-export const useGeneratorMutations = () => { // 👈 RENAMED HERE
+export const useGeneratorMutations = () => {
     const { toast } = useToast();
     const navigate = useNavigate();
 
@@ -47,7 +45,7 @@ export const useGeneratorMutations = () => { // 👈 RENAMED HERE
                 return;
             }
             toast({title: data.data?.message, description: `The book ID is ${data.data?.book_id}. Please be patient`});
-            navigate('/processing'); // 👈 ADDED NAVIGATION
+            navigate(`/processing/${data.data.book_id}`); // 👈 MODIFIED NAVIGATION
         },
         onError: (error) => {
             toast({
