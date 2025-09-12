@@ -19,6 +19,20 @@ export const useSupportedLanguages = () => {
     });
 };
 
+export const useSupportedTones = () => {
+   return useQuery({
+       queryKey: ['supportedTones'],
+       queryFn: async () => {
+           const {data} = await generatorService.getSupportedTones();
+           if (!data.success || !data.data) {
+               throw new Error(data.error?.message || 'Failed to fetch tones');
+           }
+           return data.data.tones;
+       },
+       staleTime: 1000 * 60 * 5,
+   })
+}
+
 export const useGeneratorMutations = () => {
     const { toast } = useToast();
     const navigate = useNavigate();

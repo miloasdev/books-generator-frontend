@@ -8,6 +8,7 @@ export interface ChapterDetail {
     description: string | null;
     status: string;
     generated_content: string | null;
+    error_reason: string | null;
 }
 
 // Matches the SelectedLanguage schema from the backend

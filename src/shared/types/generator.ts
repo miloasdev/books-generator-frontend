@@ -21,9 +21,19 @@ export type Language = {
     code: string;
 };
 
+export type Tone = {
+    id: number;
+    name: string;
+    code: string;
+};
+
 // The data structure for the list of supported languages
 export type LanguagesData = {
     languages: Language[];
+};
+
+export type ToneData = {
+    tones: Tone[];
 };
 
 // The data structure for the response after starting book generation
@@ -35,4 +45,5 @@ export type GenerateBookData = {
 // --- API Response Types ---
 export type SheetConnectionResponse = ApiResponse<SheetConnectionData>;
 export type SupportedLanguagesResponse = ApiResponse<LanguagesData>;
+export type SupportedTonesResponse = ApiResponse<ToneData>;
 export type GenerateBookResponse = ApiResponse<GenerateBookData>;

@@ -1,12 +1,40 @@
 // src/features/results/hooks/useResultsQueries.ts
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { generatorService } from '@/features/generator/services/generatorService';
+import { useToast } from "@/shared/hooks/use-toast.ts";
+import { getErrorMessage } from "@/shared/lib";
 
 export const useBookDetails = (bookId: number | undefined) => {
     return useQuery({
         queryKey: ['bookDetails', bookId],
         queryFn: () => generatorService.getBookById(Number(bookId)),
-        enabled: !!bookId, // Only run if bookId is available
-        staleTime: 1000 * 60 * 5, // Cache data for 5 minutes
+        enabled: !!bookId,
+        staleTime: 1000 * 60 * 5,
     });
 };
+
+// 👇 ADD THIS NEW HOOK
+export const useBookMutations = (bookId: number) => {
+    const { toast } = useToast();
+
+    const exportBookMutation = useMutation({
+        mutationFn: () => generatorService.exportBook(bookId),
+        onSuccess: (res) => {
+            const { data } = res;
+            if (data.success) {
+                toast({ title: "Export Started", description: data.message ?? "Your book is being exported." });
+            } else {
+                // This handles the "NOT_IMPLEMENTED" error gracefully
+                toast({ title: "Export unavailable", description: data.error.message, variant: "default" });
+            }
+        },
+        onError: (err) => {
+            toast({ title: "Export Failed", description: getErrorMessage(err), variant: "destructive" });
+        }
+    });
+
+    return {
+        exportBook: exportBookMutation.mutate,
+        isExporting: exportBookMutation.isPending,
+    }
+}

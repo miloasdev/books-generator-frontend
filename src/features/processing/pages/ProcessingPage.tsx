@@ -1,112 +1,100 @@
 // src/features/processing/pages/ProcessingPage.tsx
-import * as React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/shared/components/ui/card';
-import { Button } from '@/shared/components/ui/button';
-import { Progress } from '@/shared/components/ui/progress';
-import { ProcessingStep } from '../components/ProcessingStep';
-import { Wand2 } from 'lucide-react';
-import { useBookStatus } from '../hooks/useProcessingQueries'; // 👈 IMPORT THE NEW HOOK
-
-const processSteps = [
-    { title: "Reading Google Sheet", description: "Importing chapters from your spreadsheet." },
-    { title: "Creating Combinations", description: "Generating unique book variations." },
-    { title: "Enhancing with AI", description: "Improving readability and adding professional touches." },
-    { title: "Adding Book Elements", description: "Creating intros, tables of content, and titles." },
-    { title: "Translating Content", description: "Converting books to all selected languages." },
-    { title: "Finalizing Documents", description: "Generating Google Docs and updating your sheet." }
-];
+import { useParams, useNavigate } from "react-router-dom";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Progress } from "@/shared/components/ui/progress";
+import { Wand2 } from "lucide-react";
+import { useBookStatus } from "../hooks/useProcessingQueries";
+import { ChapterStatusCard } from "../components/ChapterStatusCard";
+import { Button } from "@/shared/components/ui/button";
 
 export const ProcessingPage = () => {
-    const { bookId } = useParams<{ bookId: string }>();
-    const navigate = useNavigate();
+  const { bookId } = useParams<{ bookId: string }>();
+  const navigate = useNavigate();
+  const { data: response } = useBookStatus(bookId ? Number(bookId) : undefined);
 
-    // 👇 USE THE NEW HOOK
-    const { data: response } = useBookStatus(bookId ? Number(bookId) : undefined);
+  const bookData = response && response.success ? response.data : null;
 
-    const statusData = response?.data?.data;
+  const {
+    book_status = "generating",
+    done_count = 0,
+    failed_count = 0,
+    total_count = 1,
+    chapters = [],
+  } = bookData || {};
 
-    React.useEffect(() => {
-        if (statusData) {
-            const { book_status } = statusData;
-            if (book_status === 'done' || book_status === 'partial') {
-                navigate(`/results/${bookId}`);
-            }
-        }
-    }, [statusData, navigate, bookId]);
+  const progress = total_count > 0 ? (done_count / total_count) * 100 : 0;
+  const isComplete = book_status === "done" || book_status === "partial";
+  const processing_count = total_count - done_count - failed_count;
 
-    const {
-        book_status = 'generating',
-        done_count = 0,
-        total_count = 1,
-    } = statusData || {};
+  return (
+    <div className="space-y-6">
+      {/* Page title */}
+      <div>
+        <h1 className="font-serif text-4xl font-bold tracking-tight text-foreground">
+          Processing Your Book
+        </h1>
+        <p className="text-muted-foreground">
+          Each chapter is generated independently. Status updates in real-time.
+        </p>
+      </div>
 
-    const progress = (done_count / total_count) * 100;
-    const isComplete = book_status === 'done' || book_status === 'partial';
-
-    return (
-        <div className="space-y-6">
-            <div>
-                <h1 className="font-serif text-4xl font-bold tracking-tight text-foreground">
-                    Processing Your Books
-                </h1>
-                <p className="text-muted-foreground">
-                    This may take a few minutes. We'll keep you updated step‑by‑step.
-                </p>
+      <div className="max-w-4xl mx-auto w-full">
+        <Card className="bg-card border border-border h-[80vh] flex flex-col">
+          {/* Header */}
+          <CardHeader className="flex flex-col items-center text-center space-y-4">
+            <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
+              <Wand2 className="h-7 w-7 text-primary" />
             </div>
-            <div className="max-w-3xl mx-auto w-full">
-                <Card className="bg-card border border-border">
-                    <CardHeader className="flex flex-col items-center text-center space-y-4">
-                        <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
-                            <Wand2 className="h-7 w-7 text-primary" />
-                        </div>
-                        <CardTitle className="font-serif text-2xl">
-                            {isComplete ? "All Steps Completed" : "In Progress"}
-                        </CardTitle>
-                        <CardDescription>
-                            {isComplete
-                                ? "You can now view and download your generated books."
-                                : "Follow the progress below as we prepare your content."}
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        <div className="space-y-5">
-                            {processSteps.map((step, index) => {
-                                const currentStepIndex = Math.floor((progress / 100) * processSteps.length);
-                                return (
-                                    <ProcessingStep
-                                        key={index}
-                                        stepNumber={index + 1}
-                                        title={step.title}
-                                        description={step.description}
-                                        status={
-                                            index < currentStepIndex ? 'complete' :
-                                            index === currentStepIndex && !isComplete ? 'active' :
-                                            'pending'
-                                        }
-                                    />
-                                );
-                            })}
-                        </div>
-                    </CardContent>
-                    <CardFooter className="flex flex-col gap-4 pt-6">
-                        {!isComplete && (
-                            <>
-                                <Progress value={progress} className="w-full h-2 rounded-full" />
-                                <div className="text-center text-sm text-muted-foreground">
-                                    <strong>Status: </strong>
-                                    {book_status} ({done_count}/{total_count} Chapters)
-                                </div>
-                            </>
-                        )}
-                        {isComplete && (
-                            <Button size="lg" className="w-full lg:w-auto" onClick={() => navigate(`/results/${bookId}`)}>
-                                View Results
-                            </Button>
-                        )}
-                    </CardFooter>
-                </Card>
+            <CardTitle className="font-serif text-2xl">
+              {isComplete ? "Book Generation Completed" : "Chapters in Progress"}
+            </CardTitle>
+            <CardDescription>
+              {isComplete
+                ? "You can now view the results of your book."
+                : "Chapters are being processed in parallel."}
+            </CardDescription>
+          </CardHeader>
+
+          {/* Content */}
+          <CardContent className="flex flex-col flex-1 overflow-hidden">
+            {/* Summary */}
+            <div className="flex items-center justify-around border rounded-md py-2 mb-4 bg-muted/30 text-sm font-medium">
+              <span>Total: {total_count}</span>
+              <span className="text-green-600">Done: {done_count}</span>
+              <span className="text-red-600">Failed: {failed_count}</span>
+              <span className="text-primary">Processing: {processing_count}</span>
             </div>
-        </div>
-    );
+
+            {/* Progress */}
+            <div className="mb-4">
+              <Progress value={progress} className="w-full h-2 rounded-full" />
+              <div className="text-center text-xs text-muted-foreground mt-1">
+                {book_status} ({done_count}/{total_count} chapters completed)
+              </div>
+            </div>
+
+            {/* Scrollable chapter list */}
+            <div className="flex-1 overflow-y-auto pr-1 space-y-3">
+              {chapters.map((ch, i) => (
+                <ChapterStatusCard key={i} title={ch.title} status={ch.status} />
+              ))}
+            </div>
+          </CardContent>
+
+          {/* Footer */}
+          <CardFooter className="flex justify-center pt-4">
+            {isComplete && (
+              <Button
+                size="lg"
+                className="w-full lg:w-auto"
+                onClick={() => navigate(`/results/${bookId}`)}
+              >
+                View Results
+              </Button>
+            )}
+          </CardFooter>
+        </Card>
+      </div>
+    </div>
+  );
 };
