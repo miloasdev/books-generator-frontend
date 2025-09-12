@@ -12,20 +12,35 @@ export interface ChapterDetail {
 }
 
 // Matches the SelectedLanguage schema from the backend
-export interface SelectedLanguage {
+export interface Language {
     id: number;
     code: string;
+    name: string;
+}
+
+export interface Tone {
+    id: number;
+    name: string;
+    code: string;
+}
+
+export interface IndexedChapter {
+    id: number;
+    title: string;
 }
 
 // Matches the BookDetailResponse schema from the backend
 export interface BookDetail {
     id: number;
+    title: string;
     status: string;
     words_per_chapter: number;
     writer_intro: string;
     ai_prompt: string;
-    languages: SelectedLanguage[];
+    languages: Language[];
+    tone: Tone
     chapters: ChapterDetail[];
+    index: IndexedChapter;
 }
 
 export type BookDetailResponse = ApiResponse<BookDetail>;

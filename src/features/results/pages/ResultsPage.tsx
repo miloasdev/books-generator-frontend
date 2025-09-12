@@ -7,7 +7,6 @@ import { BookViewer } from "../components/BookViewer";
 import { useBookDetails, useBookMutations } from "../hooks/useResultsQueries";
 import { FileText, Languages, ListOrdered, CheckCircle2, AlertTriangle, Loader2 } from "lucide-react";
 import { BookResultCard } from "../components/BookResultCard";
-import { Badge } from "@/shared/components/ui/badge";
 
 export const ResultsPage = () => {
   const { bookId } = useParams<{ bookId: string }>();
@@ -20,7 +19,9 @@ export const ResultsPage = () => {
 
   const book = response?.data.success ? response.data.data : null;
 
-  if (isLoading) {
+    console.log("Book Details", book)
+
+    if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center h-full">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -57,32 +58,34 @@ export const ResultsPage = () => {
               Review your generated book and export when ready.
             </p>
           </div>
-          <Badge className="capitalize" variant={book.status === "done" ? "secondary" : book.status === "partial" ? "destructive" : "outline"}>
-            {book.status}
-          </Badge>
         </div>
 
-        {/* Stats row */}
-        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
-          <ResultStatCard
-            title="Completion"
-            value={book.status === "done" ? "Complete" : book.status === "partial" ? "Partial" : "In Progress"}
-            icon={<CheckCircle2 className="h-5 w-5" />}
-          />
-          <ResultStatCard
-            title="Estimated Words"
-            value={`~${totalWords.toLocaleString()}`}
+       {/* Stats row */}
+        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-4">
+            <ResultStatCard
+            title="Books"
+            value={"1"} // hardcoded for now, replace with dynamic later
             icon={<FileText className="h-5 w-5" />}
-          />
-          <ResultStatCard
-            title="Languages"
-            value={book.languages.length.toString()}
-            icon={<Languages className="h-5 w-5" />}
           />
           <ResultStatCard
             title="Chapters"
             value={book.chapters.length.toString()}
             icon={<ListOrdered className="h-5 w-5" />}
+          />
+            <ResultStatCard
+            title="Estimated Words"
+            value={`~${totalWords.toLocaleString()}`}
+            icon={<FileText className="h-5 w-5" />}
+          />
+          <ResultStatCard
+            title="Tone"
+            value={book.tone?.name ?? "—"}
+            icon={<CheckCircle2 className="h-5 w-5" />}
+          />
+          <ResultStatCard
+            title="Languages"
+            value={book.languages.length.toString()}
+            icon={<Languages className="h-5 w-5" />}
           />
         </div>
 

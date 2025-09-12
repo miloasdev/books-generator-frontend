@@ -1,13 +1,13 @@
 // src/features/results/hooks/useResultsQueries.ts
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { generatorService } from '@/features/generator/services/generatorService';
 import { useToast } from "@/shared/hooks/use-toast.ts";
 import { getErrorMessage } from "@/shared/lib";
+import {resultService} from "@/features/results/services/resultsService.ts";
 
 export const useBookDetails = (bookId: number | undefined) => {
     return useQuery({
         queryKey: ['bookDetails', bookId],
-        queryFn: () => generatorService.getBookById(Number(bookId)),
+        queryFn: () => resultService.getBookById(Number(bookId)),
         enabled: !!bookId,
         staleTime: 1000 * 60 * 5,
     });
@@ -18,7 +18,7 @@ export const useBookMutations = (bookId: number) => {
     const { toast } = useToast();
 
     const exportBookMutation = useMutation({
-        mutationFn: () => generatorService.exportBook(bookId),
+        mutationFn: () => resultService.exportBook(bookId),
         onSuccess: (res) => {
             const { data } = res;
             if (data.success) {

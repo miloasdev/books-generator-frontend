@@ -1,0 +1,19 @@
+/* src/shared/styles/book-prose.css */
+.book-prose {
+    max-width: 65ch; /* comfortable reading width */
+    margin: 0 auto;
+}
+
+.book-prose :where(p) {
+    line-height: 1.8;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.book-prose :where(li, blockquote) {
+    line-height: 1.7;
+}
+
+.book-prose strong {
+    font-weight: 600;
+}

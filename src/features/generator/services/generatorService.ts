@@ -6,8 +6,7 @@ import type {
     SupportedLanguagesResponse, SupportedTonesResponse
 } from "@/shared/types/generator.ts";
 import type { BookGeneratorFormValues } from "@/features/generator/lib/schemas.ts";
-import type { BookDetailResponse, BookStatusResponse } from "@/shared/types/book.ts";
-import type { ApiResponse } from "@/shared/types/api.ts";
+import type { BookStatusResponse } from "@/shared/types/book.ts";
 
 export const generatorService = {
     connectToSheets: (url: string) => {
@@ -22,7 +21,5 @@ export const generatorService = {
     generateBook: (data: BookGeneratorFormValues) => {
         return api.post<GenerateBookResponse>('/books/generate', data);
     },
-    getBookById: (id: number) => api.get<BookDetailResponse>(`/books/${id}`),
     getBookStatus: (id: number) => api.get<BookStatusResponse>(`/books/${id}/status`),
-    exportBook: (id: number) => api.post<ApiResponse<never>>(`/books/${id}/export`),
 };
